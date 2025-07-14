@@ -27,6 +27,14 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+        }}
+      />
+      
+      <Tabs.Screen
         name="init"
         options={{
           title: 'Initializer',
@@ -37,14 +45,14 @@ export default function TabLayout() {
         name="CreateNotice"
         options={{
           title: 'Criar',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="add" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="NoticeListScreen"
         options={{
           title: 'Avisos',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house-outline.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
     </Tabs>
