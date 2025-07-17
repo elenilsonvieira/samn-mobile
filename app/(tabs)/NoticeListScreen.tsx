@@ -1,95 +1,273 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import Header from "@/components/Header";
+import { LocaleConfig } from 'react-native-calendars';
+import MyScrollView from "@/components/MyScrollView";
+import NoticeCard from "@/components/NoticeCard";
+import ViewModeSelector from "@/components/ViewModeSelector";
+import CustomCalendar from "@/components/CustomCalendar";
 
-export default function NoticeListScreen(){
+LocaleConfig.locales['pt-br'] = {
+  monthNames: [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ],
+  monthNamesShort: [
+    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+  ],
+  dayNames: [
+    'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+    'Quinta-feira', 'Sexta-feira', 'Sábado'
+  ],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+  today: 'Hoje'
+};
+
+LocaleConfig.defaultLocale = 'pt-br';
+
+export default function NoticeListScreen() {
+  const today = new Date().toISOString().slice(0, 10);
+  const [viewMode, setViewMode] = useState<'monthly' | 'weekly' | 'daily'>('monthly');
   const notices = [
     {
       title: "Monitoria de Algoritmos",
-      date: "11/08",
+      date: "2025-08-11",
       start: "8:00",
       monitor: "Rafael",
-      description: "Uma aula onde iremos revisar e trabalhar os conceitos iniciais de programação."
+      description: "Revisão e conceitos iniciais de programação.",
     },
     {
       title: "Revisão de HTML",
-      date: "14/07",
+      date: "2025-07-14",
       start: "15:00",
       monitor: "Davi",
-      description: "Revisão para avaliação prática do dia 21 de julho."
+      description: "Revisão para avaliação prática do dia 21 de julho.",
     },
     {
       title: "Monitoria de Matemática",
-      date: "22/07",
+      date: "2025-07-14",
       start: "15:00",
       monitor: "Rafael",
-      description: "Aula que terá o foco em revisar e resolver exercícios sobre limites laterais."
-    }
+      description: "Foco em limites laterais.",
+    },
+    {
+      title: "Aula de Reforço de Programação",
+      date: '2025-07-18',
+      start: '13:00',
+      monitor: "Vinicius",
+      description: "Para aqueles com problemas nos conceitos básicos"
+    },
+    {
+      title: "Aula de Reforço de Linguagem de Marcação",
+      date: '2025-07-18',
+      start: '15:00',
+      monitor: "Rafael",
+      description: "Para aqueles com problemas nos conceitos básicos"
+    },
+    {
+      title: "Aula de Reforço de Linguagem de Marcação",
+      date: '2025-07-17',
+      start: '15:00',
+      monitor: "Rafael",
+      description: "Para aqueles com problemas nos conceitos básicos"
+    },
+    {
+      title: "Aula de Reforço de Linguagem de Marcação",
+      date: '2025-07-19',
+      start: '15:00',
+      monitor: "Rafael",
+      description: "Para aqueles com problemas nos conceitos básicos"
+    },
+    {
+      title: "Aniversario Do Davi",
+      date: '2025-07-30',
+      start: '00:00',
+      monitor: "Davi",
+      description: "Parabéns!"
+    },
   ];
 
-  return (
-    <ScrollView>
-      <Header/>
-      <View style={styles.mainContainer}>
-        <Text style={styles.title}>Listagem de Avisos</Text>
-        {notices.map((notice, index) => (
-          <View key={index} style={styles.noticeContainer}>
-            <Text style={styles.noticeTitle}>{notice.title}</Text>
-            <View style={styles.row}>
-              <Text style={styles.noticeText}>Data: {notice.date}</Text>
-              <Text style={styles.noticeText}>Início: {notice.start}</Text>
-            </View>
-            <Text style={styles.noticeText}>Monitor: {notice.monitor}</Text>
-            <Text style={styles.noticeDescription}>{notice.description}</Text>
-          </View>
-        ))}
-      </View>
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-    </ScrollView>
+  const filteredNotices = selectedDate
+    ? notices.filter((n) => n.date === selectedDate)
+    : [];
+  const weekDates = React.useMemo(() => getCurrentWeekDates(), []);
+
+  const weeklyNotices = notices.filter((n) => weekDates.includes(n.date));
+
+  const marked: {
+    [date: string]: {
+      marked?: boolean;
+      dotColor?: string;
+      selected?: boolean;
+      selectedColor?: string;
+      customStyles?: {
+        container?: object;
+        text?: object;
+      };
+    };
+  } = {};
+
+  notices.forEach((n) => {
+    marked[n.date] = {
+      marked: true,
+      dotColor: "blue",
+    };
+  });
+
+
+  if (selectedDate) {
+    marked[selectedDate] = {
+      ...(marked[selectedDate] || {}),
+      selected: true,
+      selectedColor: "#2196F3",
+    };
+  }
+
+  marked[today] = {
+  ...(marked[today] || {}),
+  customStyles: {
+    container: {
+      backgroundColor: "#4CAF50",
+    },
+    text: {
+      color: "white",
+      fontWeight: "bold",
+      },
+    },
+  };
+
+  function getCurrentWeekDates() {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const week = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - dayOfWeek + i);
+      const dateString = d.toISOString().slice(0, 10);
+      week.push(dateString);
+    }
+
+    return week;
+  }
+
+  const getTodayString = () => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+};
+
+  const todayD = getTodayString();
+  const dailyNotices = notices.filter((notice) => {
+    return notice.date === todayD;
+  });
+  return (
+    <View style={{ flex: 1 }}>
+      <Header />
+      <CustomCalendar
+        visible={viewMode === 'monthly'}
+        markedDates={marked}
+        onDateChange={(date) => setSelectedDate(date)}
+      />
+      <View style={styles.mainContainer}>
+        <ViewModeSelector
+          selected={
+            viewMode === 'daily'
+              ? 'Hoje'
+              : viewMode === 'weekly'
+              ? 'Semanal'
+              : 'Mensal'
+          }
+          onChange={(mode) => {
+            if (mode === 'Hoje') {
+              setViewMode('daily');
+            } else if (mode === 'Semanal') {
+              setViewMode('weekly');
+            } else {
+              setViewMode('monthly');
+            }
+          }}
+        />
+        <MyScrollView style={{ maxHeight: 300 }}>
+          {viewMode === 'monthly' && filteredNotices.map((notice, index) => (
+            <NoticeCard
+              key={index}
+              title={notice.title}
+              start={notice.start}
+              monitor={notice.monitor}
+              description={notice.description}
+            />
+          ))}
+          {viewMode === 'weekly' && weeklyNotices.map((notice, index) => (
+            <NoticeCard
+              key={index}
+              title={notice.title}
+              start={notice.start}
+              monitor={notice.monitor}
+              description={notice.description}
+              date={notice.date}
+            />
+          ))}
+          {viewMode === 'daily' && dailyNotices.length === 0 && (
+            <Text style={{ textAlign: 'center', marginTop: 20 , color:'white'}}>Nenhum aviso para hoje.</Text>
+          )}
+          {viewMode === 'daily' && dailyNotices.length > 0 && dailyNotices.map((notice, index) => (
+            <NoticeCard
+              key={index}
+              title={notice.title}
+              start={notice.start}
+              monitor={notice.monitor}
+              description={notice.description}
+              date={notice.date}
+            />
+          ))}
+        </MyScrollView>
+      </View>
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
-    title:{
-        marginTop: 30,
-        textAlign: 'center',
-        fontSize: 32,
-        marginBottom:30,
-        color:'black'
-    },
-    mainContainer: {
-      paddingTop: 5,
-      marginTop: 10,
-      marginHorizontal: 10,
-      borderRadius: 20,
-    },
-    noticeContainer: {
-      marginHorizontal: 7,
-      marginBottom: 20,
-      backgroundColor: "#f4f4f4",
-      padding: 15,
-      borderRadius: 10,
-      shadowColor: "#000",
-      elevation: 5,
-    },
-    noticeTitle: {
-      color: "#333",
-      fontSize: 20,
-      fontWeight: "bold",
-      marginBottom: 4,
-      textAlign: 'center'
-    },
-    noticeText: {
-      fontSize: 16,
-      color: "gray",
-      marginBottom: 4,
-    },
-    noticeDescription: {
-      fontSize: 16,
-      color: "black",
-      marginTop: 10,
-    },
-    row: {
-      flexDirection: 'row',
-      justifyContent: 'space-between'
-    },
+  title: {
+    marginTop: 10,
+    textAlign: "center",
+    fontSize: 24,
+    marginBottom: 20,
+    color: "black",
+  },
+  mainContainer: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  noticeContainer: {
+    marginBottom: 20,
+    backgroundColor: "#f4f4f4",
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: "#000",
+    elevation: 3,
+  },
+  noticeTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 4,
+    color: "#333",
+  },
+  noticeText: {
+    fontSize: 16,
+    color: "gray",
+    marginBottom: 4,
+  },
+  noticeDescription: {
+    fontSize: 16,
+    color: "black",
+    marginTop: 10,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
 });
