@@ -18,11 +18,11 @@ export default function CriarAvisoScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.mainContainer}>
       <Header/>
       <View style={styles.backContainer}>
-        <View style={styles.mainContainer}>
-          <Text style={styles.title}>Criar Aviso</Text>
+        <View style={styles.container}>
+          <Text style={styles.title}>Criar Monitoria</Text>
           <AvisoForm onSalvar={handleSalvar} />
         </View>
       </View>
@@ -32,7 +32,7 @@ export default function CriarAvisoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     backgroundColor: '#f9f9f9',
     flex: 1,
   },
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   }
   ,
-  mainContainer:{
+  container:{
     backgroundColor: '#dedede',
     paddingTop: 5,
     marginTop: 10,
@@ -73,14 +73,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
     alignSelf: 'center',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    backgroundColor: '#dedede',
-    width: '100%',
-    height: '10%',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
+  }
 });

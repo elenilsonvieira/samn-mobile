@@ -42,16 +42,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="CreateNotice"
+        name="noticeListScreen"
         options={{
-          title: 'Criar',
+          title: 'Calendario',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="NoticeListScreen"
+        name="createNotice"
         options={{
-          title: 'Avisos',
+          title: 'Criar Aviso de Aula',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />

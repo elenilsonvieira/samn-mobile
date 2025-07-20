@@ -4,7 +4,8 @@ import { View, StyleSheet } from 'react-native';
 export default function InitializerScreen() {
   return (
     <View style={styles.container}>
-      <Image source={require('@/assets/images/main.png')}
+      <Image
+        source={require('@/assets/images/main.png')}
         style={styles.image}
       />
     </View>
@@ -14,6 +15,7 @@ export default function InitializerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center', 
   },
