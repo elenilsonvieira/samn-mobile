@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import { IMonitor } from '@/components/interfaces/IMonitor';
 
 
+
 export default function RegisterMonitorScreen() {
     const [monitores, setMonitores] = useState<IMonitor[]>([]);
 
