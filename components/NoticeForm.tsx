@@ -1,15 +1,28 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Platform, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
+export type DadosAvisoRecorrente = {
+  materia: string;
+  data: string;      // data inicial (ex: dd/MM/yyyy)
+  hora: string;      // hora da aula (HH:mm)
+  descricao: string;
+  frequencia: "Apenas uma vez" | "Uma vez por semana" | "Uma vez por mês" | "Uma vez por ano";
+  untilISO?: string; // opcional, data final para repetir
+  occurrences?: number; // opcional, limite de vezes
+};
+
 type AvisoFormProps = {
-  onSalvar: (dados: {
-    materia: string;
-    data: string;
-    hora: string;
-    descricao: string;
-  }) => void;
+  onSalvar: (dados: DadosAvisoRecorrente) => void | Promise<void>;
 };
 
 export default function AvisoForm({ onSalvar }: AvisoFormProps) {
@@ -17,9 +30,18 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
   const [data, setData] = useState(new Date());
   const [hora, setHora] = useState(new Date());
   const [descricao, setDescricao] = useState("");
+  const [frequencia, setFrequencia] = useState<
+    "Apenas uma vez" | "Uma vez por semana" | "Uma vez por mês" | "Uma vez por ano" | ""
+  >("");
+
+  // Campos adicionais para recorrência
+  const [untilDate, setUntilDate] = useState<Date | null>(null);
+  const [showUntil, setShowUntil] = useState(false);
+  const [occurrences, setOccurrences] = useState<string>("");
 
   const [mostrarData, setMostrarData] = useState(false);
   const [mostrarHora, setMostrarHora] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const materiasDisponiveis = [
     "Algoritmos",
@@ -29,23 +51,59 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
     "Sistemas Operacionais",
   ];
 
-  const handleSalvar = () => {
-    const dataFormatada = data.toLocaleDateString("pt-BR");
-    const horaFormatada = hora.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const arrayFrequencia = [
+    "Apenas uma vez",
+    "Uma vez por semana",
+    "Uma vez por mês",
+    "Uma vez por ano",
+  ];
 
-    onSalvar({
-      materia,
-      data: dataFormatada,
-      hora: horaFormatada,
-      descricao,
-    });
+  const canSave = !!materia && !!descricao && frequencia !== "" && !loading;
+
+  const handleSalvar = async () => {
+    if (!canSave) return;
+    const agora = new Date();
+
+    // Valida se a data é passada
+    if (data.setHours(0, 0, 0, 0) < agora.setHours(0, 0, 0, 0)) {
+      Alert.alert("Data inválida", "Você não pode selecionar uma data no passado.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const dataFormatada = data.toLocaleDateString("pt-BR");
+      const horaFormatada = hora.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      await onSalvar({
+        materia,
+        data: dataFormatada,
+        hora: horaFormatada,
+        descricao,
+        frequencia: frequencia as DadosAvisoRecorrente["frequencia"],
+        untilISO: untilDate ? untilDate.toISOString() : undefined,
+        occurrences: occurrences ? Number(occurrences) : undefined,
+      });
+
+      // Reset do form
+      setMateria("");
+      setDescricao("");
+      setFrequencia("");
+      setData(new Date());
+      setHora(new Date());
+      setUntilDate(null);
+      setOccurrences("");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
+      {/* MATÉRIA */}
       <Text style={styles.label}>Disciplina:</Text>
       <Picker
         selectedValue={materia}
@@ -58,8 +116,12 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
         ))}
       </Picker>
 
+      {/* DATA */}
       <Text style={styles.label}>Data:</Text>
-      <TouchableOpacity style={styles.botaoData} onPress={() => setMostrarData(true)}>
+      <TouchableOpacity
+        style={styles.botaoData}
+        onPress={() => setMostrarData(true)}
+      >
         <Text style={styles.botaoDataTexto}>
           {data.toLocaleDateString("pt-BR")}
         </Text>
@@ -68,6 +130,7 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
         <DateTimePicker
           value={data}
           mode="date"
+          minimumDate={new Date()} // bloqueia datas passadas
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedDate) => {
             setMostrarData(false);
@@ -76,13 +139,19 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
         />
       )}
 
+      {/* HORA */}
       <Text style={styles.label}>Hora:</Text>
-      <TouchableOpacity style={styles.botaoData} onPress={() => setMostrarHora(true)}>
+      <TouchableOpacity
+        style={styles.botaoData}
+        onPress={() => setMostrarHora(true)}
+      >
         <Text style={styles.botaoDataTexto}>
-          {hora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          {hora.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </Text>
       </TouchableOpacity>
-
       {mostrarHora && (
         <DateTimePicker
           value={hora}
@@ -95,22 +164,77 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
         />
       )}
 
+      {/* DESCRIÇÃO */}
       <Text style={styles.label}>Descrição:</Text>
       <TextInput
         style={styles.input}
         placeholder="Ex: Assunto da monitoria, local etc."
-        placeholderTextColor={'rgba(0, 0, 0, 0.5)'}
+        placeholderTextColor={"rgba(0, 0, 0, 0.5)"}
         value={descricao}
         onChangeText={setDescricao}
         multiline
       />
 
-      <TouchableOpacity
-        style={[styles.botaoSalvar, (!materia || !descricao) && styles.botaoDesabilitado]}
-        onPress={handleSalvar}
-        disabled={!materia || !descricao}
+      {/* FREQUÊNCIA */}
+      <Text style={styles.label}>Frequência:</Text>
+      <Picker
+        selectedValue={frequencia}
+        onValueChange={(itemValue) => setFrequencia(itemValue)}
+        style={styles.picker}
       >
-        <Text style={styles.botaoSalvarTexto}>Criar Aviso</Text>
+        <Picker.Item label="Frequência que essa aula irá acontecer" value="" />
+        {arrayFrequencia.map((f, index) => (
+          <Picker.Item key={index} label={f} value={f} />
+        ))}
+      </Picker>
+
+      {/* CAMPOS EXTRAS PARA RECORRÊNCIA */}
+      {frequencia !== "" && frequencia !== "Apenas uma vez" && (
+        <>
+          <Text style={styles.label}>Repetir até (opcional):</Text>
+          <TouchableOpacity
+            style={styles.botaoData}
+            onPress={() => setShowUntil(true)}
+          >
+            <Text style={styles.botaoDataTexto}>
+              {untilDate
+                ? untilDate.toLocaleDateString("pt-BR")
+                : "Selecionar data"}
+            </Text>
+          </TouchableOpacity>
+          {showUntil && (
+            <DateTimePicker
+              value={untilDate ?? new Date()}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={(_, d) => {
+                setShowUntil(false);
+                setUntilDate(d ?? null);
+              }}
+            />
+          )}
+
+          <Text style={styles.label}>Quantidade de ocorrências (opcional):</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ex: 12"
+            keyboardType="number-pad"
+            placeholderTextColor={"rgba(0, 0, 0, 0.5)"}
+            value={occurrences}
+            onChangeText={setOccurrences}
+          />
+        </>
+      )}
+
+      {/* BOTÃO */}
+      <TouchableOpacity
+        style={[styles.botaoSalvar, !canSave && styles.botaoDesabilitado]}
+        onPress={() => void handleSalvar()}
+        disabled={!canSave}
+      >
+        <Text style={styles.botaoSalvarTexto}>
+          {loading ? "Salvando..." : "Criar Aviso"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -122,48 +246,48 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   botaoData: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: "#ebebeb",
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
     elevation: 5,
   },
   botaoDataTexto: {
-    color: 'black',
+    color: "black",
     fontSize: 16,
   },
   label: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
   },
   picker: {
     backgroundColor: "#ebebeb",
-    color: 'black',
-    textAlign: 'center',
+    color: "black",
+    textAlign: "center",
     elevation: 5,
   },
   input: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: "#ebebeb",
     padding: 10,
     borderRadius: 5,
-    minHeight: 60,
+    minHeight: 50,
     textAlignVertical: "top",
   },
   botaoSalvar: {
-    backgroundColor: '#1b5e20',
+    backgroundColor: "#1b5e20",
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 15,
     elevation: 5,
   },
   botaoSalvarTexto: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   botaoDesabilitado: {
-    backgroundColor: '#cccccc',
+    backgroundColor: "#cccccc",
     shadowOpacity: 0,
     elevation: 0,
   },
