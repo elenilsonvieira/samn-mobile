@@ -4,7 +4,6 @@ export interface IMonitor {
     email: string;
     curso?: string;
     horariosDisponiveis?: string;
-    senha?: string;
     disciplina?: string;
     criadoEm: string;
 }

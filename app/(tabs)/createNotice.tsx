@@ -1,77 +1,91 @@
 import React from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
-import AvisoForm from "../../components/NoticeForm";
-import Footer from "@/components/Footer";
+import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AvisoForm, { DadosAvisoRecorrente } from "../../components/NoticeForm";
 import Header from "@/components/Header";
+import MyScrollView from "@/components/MyScrollView";
+
+const STORAGE_KEY = "@avisos_rules";
+
+type AvisoRegraPersistida = DadosAvisoRecorrente & {
+  id: string;
+  createdAt: string;
+};
 
 export default function CriarAvisoScreen() {
+  const handleSalvar = async (dados: DadosAvisoRecorrente) => {
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const regras: AvisoRegraPersistida[] = stored ? JSON.parse(stored) : [];
 
-  const handleSalvar = (dados: {
-    materia: string;
-    data: string;
-    hora: string;
-    descricao: string;
-  }) => {
-    console.log("Aviso criado:", dados);
+      const isRecorrente = dados.frequencia !== "Apenas uma vez";
 
-    Alert.alert("Aviso criado com sucesso!");
+      // Se for recorrente e não veio untilISO nem occurrences, define um fallback.
+      let occurrencesSanitized =
+        typeof dados.occurrences === "number" && !Number.isNaN(dados.occurrences)
+          ? dados.occurrences
+          : undefined;
+
+      if (isRecorrente && !dados.untilISO && !occurrencesSanitized) {
+        // fallback padrão – ajuste como quiser (ex.: 12 meses, 12 semanas, etc.)
+        occurrencesSanitized = 12;
+      }
+
+      const novaRegra: AvisoRegraPersistida = {
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        ...dados,
+        occurrences: occurrencesSanitized,
+      };
+
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([...regras, novaRegra])
+      );
+
+      Alert.alert("Aviso (regra) criado com sucesso!");
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Erro ao salvar o aviso.");
+    }
   };
 
   return (
     <View style={styles.mainContainer}>
-      <Header/>
-      <View style={styles.backContainer}>
-        <View style={styles.container}>
-          <Text style={styles.title}>Criar Monitoria</Text>
-          <AvisoForm onSalvar={handleSalvar} />
+      <Header />
+      <ScrollView>
+        <View style={styles.backContainer}>
+          <View style={styles.container}>
+            <Text style={styles.title}>Criar Aviso de Aula de Monitoria</Text>
+            <AvisoForm onSalvar={handleSalvar} />
+          </View>
         </View>
-      </View>
-      <Footer/>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     flex: 1,
   },
   backContainer: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     paddingTop: 25,
     flex: 1,
   },
-  input:{
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginVertical: 10,
-    fontSize: 16,
-    color: '#000',
-    width: '75%',
-  },
-  Header: {
-    marginTop: 35,
-    backgroundColor: '#185545',
-    width: '100%',
-    height: '10%',
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  }
-  ,
-  container:{
-    backgroundColor: '#dedede',
+  container: {
+    backgroundColor: "#dedede",
     paddingTop: 5,
     marginTop: 10,
-    marginHorizontal:10,
+    marginHorizontal: 10,
     borderRadius: 20,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
-    alignSelf: 'center',
-  }
+    alignSelf: "center",
+  },
 });

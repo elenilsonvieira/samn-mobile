@@ -5,7 +5,7 @@ interface NoticeCardProps {
   start: string;
   monitor: string;
   description: string;
-  date?: string; // opcional
+  date: string;
 }
 
 export default function NoticeCard({
@@ -18,11 +18,10 @@ export default function NoticeCard({
   return (
     <View style={styles.card}>
       <Text style={styles.title}>
-        {title} {date ? `(${date})` : ''}
+        Aula de {title} {date ? `(${date})` : ''}
       </Text>
       <View style={styles.row}>
         <Text style={styles.text}>Início: {start}</Text>
-        <Text style={styles.text}>Monitor: {monitor}</Text>
       </View>
       <Text style={styles.description}>{description}</Text>
     </View>
