@@ -2,7 +2,7 @@
 import React, {useState} from "react";
 import { Image, View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 
-export default function Footer() {
+export default function Header() {
     const [novoCampo, setNovoCampo] = useState('');
 
     return (

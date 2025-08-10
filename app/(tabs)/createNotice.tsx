@@ -1,9 +1,10 @@
+//createNotice
 import React from "react";
-import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 import AvisoForm, { DadosAvisoRecorrente } from "../../components/NoticeForm";
 import Header from "@/components/Header";
-import MyScrollView from "@/components/MyScrollView";
 
 const STORAGE_KEY = "@avisos_rules";
 
@@ -20,14 +21,12 @@ export default function CriarAvisoScreen() {
 
       const isRecorrente = dados.frequencia !== "Apenas uma vez";
 
-      // Se for recorrente e não veio untilISO nem occurrences, define um fallback.
       let occurrencesSanitized =
         typeof dados.occurrences === "number" && !Number.isNaN(dados.occurrences)
           ? dados.occurrences
           : undefined;
 
       if (isRecorrente && !dados.untilISO && !occurrencesSanitized) {
-        // fallback padrão – ajuste como quiser (ex.: 12 meses, 12 semanas, etc.)
         occurrencesSanitized = 12;
       }
 
@@ -43,10 +42,20 @@ export default function CriarAvisoScreen() {
         JSON.stringify([...regras, novaRegra])
       );
 
-      Alert.alert("Aviso (regra) criado com sucesso!");
+      Toast.show({
+        type: "success",
+        text1: "Aviso criado!",
+        text2: "A aula foi salva com sucesso.",
+        position: "top",
+      });
     } catch (e) {
       console.error(e);
-      Alert.alert("Erro ao salvar o aviso.");
+      Toast.show({
+        type: "error",
+        text1: "Erro",
+        text2: "Não foi possível salvar a aula.",
+        position: "top",
+      });
     }
   };
 
