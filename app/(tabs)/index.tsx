@@ -1,75 +1,97 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 
 export default function HomeScreen() {
+  const handleSupport = () => {
+    Linking.openURL('mailto:suporte@exemplo.com');
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <Text style={styles.logo}>🎓 SAGE</Text>
+
+      <Image
+        source={require('@/assets/images/nnn.jpg')}
+        style={styles.illustration}
+        resizeMode="contain"
+      />
+
+      <Text style={styles.description}>
+        Organize, participe e transforme seu aprendizado.
+      </Text>
+
+      <TouchableOpacity style={styles.buttonPrimary}>
+        <Text style={styles.buttonPrimaryText}>Cadastrar-se</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.buttonSecondary}>
+        <Text style={styles.buttonSecondaryText}>Entrar</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.supportLink} onPress={handleSupport}>
+        Entre em contato com o suporte
+      </Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    padding: 24,
+    backgroundColor: '#fff',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  logo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1B4332',
+    marginBottom: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  illustration: {
+    width: 250,
+    height: 180,
+    marginBottom: 24,
+  },
+  description: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 32,
+  },
+  buttonPrimary: {
+    backgroundColor: '#1B4332',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    marginBottom: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonPrimaryText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonSecondary: {
+    borderWidth: 1,
+    borderColor: '#1B4332',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonSecondaryText: {
+    color: '#1B4332',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  supportLink: {
+    marginTop: 24,
+    fontSize: 14,
+    color: '#1B4332',
+    textDecorationLine: 'underline',
   },
 });

@@ -25,7 +25,7 @@ const CreateStudentScreen = () => {
     const [status, setStatus] = useState<IAluno['status']>('ativo');
     const [cursoSelecionado, setCursoSelecionado] = useState<ICurso>(cursosMock[0]);
     const [loading, setLoading] = useState(false);
-    
+
 
     const [endereco, setEndereco] = useState({
         rua: '',
@@ -122,7 +122,7 @@ const CreateStudentScreen = () => {
             <Header />
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.container}>
-                <Text style={styles.title}>Cadastro de Aluno</Text>
+                    <Text style={styles.title}>Cadastro de Aluno</Text>
 
                     <TextInput style={styles.input} placeholder="Nome" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={nome} onChangeText={setNome} />
                     <TextInput style={styles.input} placeholder="Matrícula" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={matricula} onChangeText={setMatricula} keyboardType="numeric" />
@@ -131,32 +131,32 @@ const CreateStudentScreen = () => {
                     <TextInput style={styles.input} placeholder="Telefone" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={telefone} onChangeText={setTelefone} keyboardType="phone-pad" />
                     <TextInput style={styles.input} placeholder="Data de Nascimento" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={dataNascimento} onChangeText={setDataNascimento} />
 
-                <Text style={styles.label}>Curso</Text>
-                <Picker
-                    selectedValue={cursoSelecionado.id}
-                    onValueChange={(itemValue) => {
-                        const curso = cursosMock.find(c => c.id === itemValue);
-                        if (curso) setCursoSelecionado(curso);
-                    }}
-                    style={styles.picker}
-                >
-                    {cursosMock.map((curso) => (
-                        <Picker.Item key={curso.id} label={curso.nome} value={curso.id} />
-                    ))}
-                </Picker>
+                    <Text style={styles.label}>Curso</Text>
+                    <Picker
+                        selectedValue={cursoSelecionado.id}
+                        onValueChange={(itemValue) => {
+                            const curso = cursosMock.find(c => c.id === itemValue);
+                            if (curso) setCursoSelecionado(curso);
+                        }}
+                        style={styles.picker}
+                    >
+                        {cursosMock.map((curso) => (
+                            <Picker.Item key={curso.id} label={curso.nome} value={curso.id} />
+                        ))}
+                    </Picker>
 
-                <Text style={styles.label}>Status</Text>
-                <Picker
-                    selectedValue={status}
-                    onValueChange={(itemValue) => setStatus(itemValue)}
-                    style={styles.picker}
-                >
-                    {statusOptions.map((opt) => (
-                        <Picker.Item key={opt} label={opt} value={opt} />
-                    ))}
-                </Picker>
+                    <Text style={styles.label}>Status</Text>
+                    <Picker
+                        selectedValue={status}
+                        onValueChange={(itemValue) => setStatus(itemValue)}
+                        style={styles.picker}
+                    >
+                        {statusOptions.map((opt) => (
+                            <Picker.Item key={opt} label={opt} value={opt} />
+                        ))}
+                    </Picker>
 
-                <Text style={styles.subtitle}>Endereço</Text>
+                    <Text style={styles.subtitle}>Endereço</Text>
                     <TextInput style={styles.input} placeholder="Rua" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={endereco.rua} onChangeText={(v) => setEndereco({ ...endereco, rua: v })} />
                     <TextInput style={styles.input} placeholder="Número" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={endereco.numero} onChangeText={(v) => setEndereco({ ...endereco, numero: v })} />
                     <TextInput style={styles.input} placeholder="Bairro" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={endereco.bairro} onChangeText={(v) => setEndereco({ ...endereco, bairro: v })} />
@@ -165,15 +165,15 @@ const CreateStudentScreen = () => {
                     <TextInput style={styles.input} placeholder="CEP" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={endereco.cep} onChangeText={(v) => setEndereco({ ...endereco, cep: v })} />
                     <TextInput style={styles.input} placeholder="Complemento (opcional)" placeholderTextColor={"rgba(0, 0, 0, 0.5)"} value={endereco.complemento} onChangeText={(v) => setEndereco({ ...endereco, complemento: v })} />
 
-                <TouchableOpacity
-                    style={[styles.botaoSalvar, !canSave && styles.botaoDesabilitado]}
-                    onPress={()=> void handleSalvar()}
-                    disabled={!canSave}
-                >
-                    <Text style={styles.botaoSalvarTexto}>
-                        {loading ? "Salvando..." : "Cadastrar Aluno"}
-                    </Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.botaoSalvar, !canSave && styles.botaoDesabilitado]}
+                        onPress={() => void handleSalvar()}
+                        disabled={!canSave}
+                    >
+                        <Text style={styles.botaoSalvarTexto}>
+                            {loading ? "Salvando..." : "Cadastrar Aluno"}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </View>
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
         padding: 25,
         flex: 1,
     },
-    container:{
+    container: {
         backgroundColor: "#dedede",
         paddingTop: 5,
         marginTop: 10,
