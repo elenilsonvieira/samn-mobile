@@ -3,12 +3,12 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-
 
 export default function HomeScreen() {
   const handleSupport = () => {
-    Linking.openURL('mailto:suporte@exemplo.com');
+    Linking.openURL('mailto:samnsuporte@gmail.com');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>🎓 SAGE</Text>
+      <Text style={styles.logo}>🎓 SAMN</Text>
 
       <Image
         source={require('@/assets/images/nnn.jpg')}
