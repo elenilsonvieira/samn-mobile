@@ -1,26 +1,19 @@
 //NoticeForm
 import React, { useState } from "react";
-import {
-    View,
-    Text,
-    TextInput,
-    StyleSheet,
-    Platform,
-    TouchableOpacity,
-} from "react-native";
 import Toast from "react-native-toast-message";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Platform, StyleSheet, View, Text, TextInput, TouchableOpacity, } from "react-native";
 
 export type DadosAvisoRecorrente = {
     materia: string;
-    data: string;      // data inicial (ex: dd/MM/yyyy)
-    hora: string;     // hora da aula (HH:mm)
+    data: string;
+    hora: string;
     localidade: string;
     descricao: string;
     frequencia: "Apenas uma vez" | "Uma vez por semana" | "Uma vez por mês" | "Uma vez por ano";
-    untilISO?: string; // opcional, data final para repetir
-    occurrences?: number; // opcional, limite de vezes
+    untilISO?: string;
+    occurrences?: number;
 };
 
 type AvisoFormProps = {
@@ -32,7 +25,6 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
     const [data, setData] = useState(new Date());
     const [hora, setHora] = useState(new Date());
     const [localidade, setLocalidade] = useState("");
-    /*     const [localidadeTexto, setLocalidadeTexto] = useState(""); */
     const [descricao, setDescricao] = useState("");
     const [frequencia, setFrequencia] = useState<
         "Apenas uma vez" | "Uma vez por semana" | "Uma vez por mês" | "Uma vez por ano" | ""
@@ -80,9 +72,6 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
 
     const canSave = !!materia && !!descricao && frequencia !== "" && !loading;
 
-    /* const handleTextInputChange = (text: string) => {
-        setLocalidadeTexto(text);
-    }; */
 
     const handleSalvar = async () => {
         if (!canSave) return;
@@ -237,16 +226,7 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
                 {locais.map((local, index) => (
                     <Picker.Item key={index} label={local} value={local} />
                 ))}
-                {/* <Picker.Item label="Outro..." value={"true"} /> */}
             </Picker>
-            {/* isso é uma opção de digitar um local, pra usar: descomente as linhas 34, 207 e a função da linha 82 */}
-            {/* { localidade === "true" && (
-                <TextInput 
-                    style={styles.input}
-                    value={localidadeTexto}
-                    onChangeText={handleTextInputChange}
-                    placeholder="Digite o nome do local" />
-            ) } */}
 
             {/* FREQUÊNCIA */}
             <Text style={styles.label}>Frequência:</Text>
@@ -305,7 +285,7 @@ export default function AvisoForm({ onSalvar }: AvisoFormProps) {
                 style={styles.input}
                 placeholder="Ex: Assunto da monitoria, extras, etc."
                 placeholderTextColor={"rgba(0, 0, 0, 0.5)"}
-                value={descricao}
+                value={descricao || ""}
                 onChangeText={setDescricao}
                 multiline
             />
