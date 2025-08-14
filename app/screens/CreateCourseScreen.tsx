@@ -5,7 +5,6 @@ import Toast from 'react-native-toast-message';
 
 import { IDisciplina } from '@/components/interfaces/IDisciplina';
 import { IProfessor } from '@/components/interfaces/IProfessor';
-import Header from '@/components/Header';
 
 const professoresMock: IProfessor[] = [
     {
@@ -78,7 +77,6 @@ const CreateCourseScreen = () => {
 
     return (
         <View style={styles.mainContainer}>
-            <Header />
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.container}>
                     <Text style={styles.title}>Cadastro de Disciplina</Text>

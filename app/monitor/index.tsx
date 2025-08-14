@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
-import Header from "@/components/Header";
 import { LocaleConfig } from "react-native-calendars";
 import NoticeCard from "@/components/NoticeCard";
 import ViewModeSelector from "@/components/ViewModeSelector";

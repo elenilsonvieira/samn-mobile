@@ -5,7 +5,6 @@ import Toast from "react-native-toast-message";
 
 import { IAluno } from '@/components/interfaces/IAluno';
 import { ICurso } from '@/components/interfaces/ICurso';
-import Header from '@/components/Header';
 
 const cursosMock: ICurso[] = [
     { id: 1, nome: 'Sistemas de Informação', codigo: 'SI2024', listaAlunos: [], listaDisciplinas: [] },
@@ -119,7 +118,6 @@ const CreateStudentScreen = () => {
 
     return (
         <View style={styles.mainContainer}>
-            <Header />
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.container}>
                     <Text style={styles.title}>Cadastro de Aluno</Text>

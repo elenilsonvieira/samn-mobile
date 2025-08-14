@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import Header from "@/components/Header";
 import { IMonitor } from '@/components/interfaces/IMonitor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
