@@ -1,60 +1,29 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
-import AvisoForm, { DadosAvisoRecorrente } from "../../components/NoticeForm";
+import AvisoForm, { DadosAulaForm } from "../../components/NoticeForm";
+import { criarAulaMonitoria } from "../../components/src/services/aulasMonitoriaService";
+  
 
-const STORAGE_KEY = "@avisos_rules";
-
-type AvisoRegraPersistida = DadosAvisoRecorrente & {
-  id: string;
-  createdAt: string;
-};
-
-export default function CreateNoticeScreen() {
-  const handleSave = async (data: DadosAvisoRecorrente) => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      const rules: AvisoRegraPersistida[] = stored ? JSON.parse(stored) : [];
-
-      const isRecorrente = data.frequencia !== "Apenas uma vez";
-
-      let occurrencesSanitized =
-        typeof data.occurrences === "number" && !Number.isNaN(data.occurrences)
-          ? data.occurrences
-          : undefined;
-
-      if (isRecorrente && !data.untilISO && !occurrencesSanitized) {
-        occurrencesSanitized = 12;
+export default function CriarAvisoScreen() {
+  const handleSalvar = async (dados: DadosAulaForm) => {
+      try {
+          await criarAulaMonitoria(dados); // agora compatível 1:1
+          Toast.show({
+              type: "success",
+              text1: "Aviso criado!",
+              text2: "A aula foi salva com sucesso.",
+              position: "top",
+          });
+      } catch (e) {
+          console.error(e);
+          Toast.show({
+              type: "error",
+              text1: "Erro",
+              text2: "Não foi possível salvar a aula.",
+              position: "top",
+          });
       }
-
-      const newRules: AvisoRegraPersistida = {
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        ...data,
-        occurrences: occurrencesSanitized,
-      };
-
-      await AsyncStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([...rules, newRules])
-      );
-
-      Toast.show({
-        type: "success",
-        text1: "Aviso criado!",
-        text2: "A aula foi salva com sucesso.",
-        position: "top",
-      });
-    } catch (e) {
-      console.error(e);
-      Toast.show({
-        type: "error",
-        text1: "Erro",
-        text2: "Não foi possível salvar a aula.",
-        position: "top",
-      });
-    }
   };
 
   return (
@@ -63,7 +32,7 @@ export default function CreateNoticeScreen() {
         <View style={styles.backContainer}>
           <View style={styles.container}>
             <Text style={styles.title}>Criar Aviso de Aula de Monitoria</Text>
-            <AvisoForm onSalvar={handleSave} />
+            <AvisoForm onSalvar={handleSalvar} />
           </View>
         </View>
       </ScrollView>

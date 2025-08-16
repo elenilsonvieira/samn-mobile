@@ -1,29 +1,42 @@
 import { View, Text, StyleSheet } from 'react-native';
 
+function formatDateBR(dateStr: string) {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 interface NoticeCardProps {
   title: string;
   start: string;
-  monitor: string;
   description: string;
+  matricula_do_responsavel: string;
+  email_do_responsavel: string;
   date: string;
+  local: string;
 }
 
 export default function NoticeCard({
   title,
   start,
-  monitor,
+  matricula_do_responsavel,
+  email_do_responsavel,
   description,
   date,
+  local
 }: NoticeCardProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>
-        Aula de {title} {date ? `(${date})` : ''}
+        Aula de {title} {date ? `(${formatDateBR(date)})` : ''}
       </Text>
       <View style={styles.row}>
         <Text style={styles.text}>Início: {start}</Text>
       </View>
-      <Text style={styles.description}>{description}</Text>
+      <Text style={styles.description}>Descrição: {description}</Text>
+      <Text style={styles.local}>Local: {local}</Text>
+      <Text style={styles.matricula_do_responsavel}>Matricula do Responsável: {matricula_do_responsavel}</Text>
+      <Text style={styles.email_do_responsavel}>Email do Responsável: {email_do_responsavel}</Text>
     </View>
   );
 }
@@ -54,4 +67,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
   },
+  local: {
+    fontSize: 14,
+    marginTop: 6,
+  },
+  matricula_do_responsavel:{
+    fontSize: 14,
+    marginTop: 6,
+  },
+  email_do_responsavel:{
+    fontSize: 14,
+    marginTop: 6,
+  }
 });
