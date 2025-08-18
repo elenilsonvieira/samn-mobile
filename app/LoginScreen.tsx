@@ -40,7 +40,7 @@ export default function LoginScreen() {
 
       Toast.show({ type: 'success', text1: 'Login realizado com sucesso!' });
 
-      router.replace("/monitor");
+      router.replace("/professor");
     } catch (error: any) {
       Toast.show({ type: 'error', text1: 'Erro no login', text2: "A Senha informada não confere com a Matrícula informada" });
     }

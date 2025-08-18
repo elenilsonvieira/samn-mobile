@@ -25,7 +25,7 @@ export default function HomeScreen() {
                 onPress={() => {
                     router.push('/RegisterScreen')
                 }}>
-                <Text style={styles.buttonPrimaryText}>Cadastrar-se</Text>
+                <Text style={styles.buttonPrimaryText}>Cadastrar-se </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -34,7 +34,7 @@ export default function HomeScreen() {
                     router.push('/LoginScreen')
                 }}
             >
-                <Text style={styles.buttonSecondaryText}>Entrar</Text>
+                <Text style={styles.buttonSecondaryText}>Entrar </Text>
             </TouchableOpacity>
 
             <Text style={styles.supportLink} onPress={handleSupport}>

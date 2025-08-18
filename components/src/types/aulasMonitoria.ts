@@ -12,13 +12,13 @@ export interface NovaAulaMonitoria {
 export interface AulaMonitoria extends Omit<NovaAulaMonitoria, "dataHora"> {
   id: string;
   dataHora: Date;      
-  Uid: string;
-  Matricula: string;
+  uid: string;
+  matricula: string;
   criadoEm?: Date | null;
   atualizadoEm?: Date | null;
 }
 // (Opcional) útil como payload para salvar no Firestore
 export interface NovaAulaMonitoriaDoc extends NovaAulaMonitoria {
-  Uid: string;
-  Matricula: string;
+  uid: string;
+  matricula: string;
 }

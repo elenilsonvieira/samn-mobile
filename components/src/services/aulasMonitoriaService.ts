@@ -17,8 +17,8 @@ const mapDoc = (d: any): AulaMonitoria => ({
   local: d.data().local,
   frequencia: d.data().frequencia,
   descricao: d.data().descricao,
-  Uid: d.data().Uid ?? "",
-  Matricula: d.data().Matricula ?? "",
+  uid: d.data().uid ?? "",
+  matricula: d.data().matricula ?? "",
   criadoEm: d.data().criadoEm?.toDate?.() ?? null,
   atualizadoEm: d.data().atualizadoEm?.toDate?.() ?? null,
 });

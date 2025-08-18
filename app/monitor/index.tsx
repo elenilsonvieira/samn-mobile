@@ -27,19 +27,22 @@ type FrequenciaType = "Única" | "Semanal" | "Mensal" | "Anual";
 type AvisoRegraPersistida = {
   id: string;
   materia: string;
-  data: string; // "dd/MM/yyyy" ou "yyyy-MM-dd"
-  hora: string; // "HH:mm"
+  data: string;
+  hora: string;
   descricao: string;
   frequencia: FrequenciaType;
-  untilISO?: string; // data final em ISO opcional
-  occurrences?: number; // limite opcional de vezes
+  untilISO?: string;
+  occurrences?: number;
   createdAt: string;
   local: string;
+  email: string;
+  matricula: string;
+  tipo: "monitoria" | "nucleo"; // NOVO: identifica o tipo
 };
 
 type StoredNotice = Omit<AvisoRegraPersistida, "untilISO" | "occurrences"> & {
-  data: string; // "dd/MM/yyyy" data da ocorrência individual
-  id: string; // id único para cada ocorrência (concat do id regra + índice)
+  data: string;
+  id: string;
 };
 
 export default function NoticeListScreen() {
@@ -100,39 +103,75 @@ export default function NoticeListScreen() {
     return avisosExpandidos;
   }, []);
 
-  // **Listener em tempo real**
+  // Listener em tempo real para monitoria e núcleos
   useFocusEffect(
     useCallback(() => {
-      const unsubscribe = onSnapshot(
+      const unsubscribeMonitoria = onSnapshot(
         collection(db, "aulas_monitoria"),
         (snapshot) => {
-          const regrasArmazenadas: AvisoRegraPersistida[] = snapshot.docs.map((doc) => {
+          const monitorias: AvisoRegraPersistida[] = snapshot.docs.map((doc) => {
             const raw = doc.data();
             const dataHora: Date | null = raw.dataHora?.toDate ? raw.dataHora.toDate() : null;
             return {
               id: doc.id,
-              ...raw,
+              materia: raw.materia,
               data: dataHora ? formatBRDate(dataHora) : "",
-              hora: dataHora
-                ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(dataHora.getMinutes()).padStart(2, "0")}`
-                : "",
+              hora: dataHora ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(dataHora.getMinutes()).padStart(2, "0")}` : "",
+              descricao: raw.descricao || "",
+              frequencia: raw.frequencia || "Única",
               createdAt: raw.criadoEm?.toDate ? raw.criadoEm.toDate().toISOString() : raw.criadoEm,
-              local: raw.local?.toString ? raw.local.toString() : raw.local,
+              local: raw.local || "",
+              matricula: raw.Matricula || "",
+              email: raw.Uid || "",
+              tipo: "monitoria",
             };
           }) as AvisoRegraPersistida[];
 
-          setRegras(regrasArmazenadas);
-          const expandidos = expandirRecorrencias(regrasArmazenadas);
-          setNotices(expandidos);
-        },
-        (error) => {
-          console.error("Erro no onSnapshot:", error);
-          setRegras([]);
-          setNotices([]);
+          setRegras((prev) => {
+            const others = prev.filter((r) => r.tipo !== "monitoria"); // remove monitorias antigas
+            const combined = [...others, ...monitorias];
+            const expandidos = expandirRecorrencias(combined);
+            setNotices(expandidos);
+            return combined;
+          });
         }
       );
 
-      return () => unsubscribe();
+      const unsubscribeNucleos = onSnapshot(
+        collection(db, "aulas_nucleo"),
+        (snapshot) => {
+          const nucleos: AvisoRegraPersistida[] = snapshot.docs.map((doc) => {
+            const raw = doc.data();
+            const dataHora: Date | null = raw.dataHora?.toDate ? raw.dataHora.toDate() : null;
+            return {
+              id: doc.id,
+              materia: raw.materia,
+              data: dataHora ? formatBRDate(dataHora) : "",
+              hora: dataHora ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(dataHora.getMinutes()).padStart(2, "0")}` : "",
+              descricao: raw.descricao || "",
+              frequencia: raw.frequencia ||"Única",
+              createdAt: raw.criadoEm?.toDate ? raw.criadoEm.toDate().toISOString() : raw.criadoEm,
+              local: raw.local || "",
+              matricula: raw.matricula || "",
+              email: raw.uid || "",
+              tipo: "nucleo",
+            };
+          }) as AvisoRegraPersistida[];
+
+          setRegras((prev) => {
+            const others = prev.filter((r) => r.tipo !== "nucleo"); // remove núcleos antigos
+            const combined = [...others, ...nucleos];
+            const expandidos = expandirRecorrencias(combined);
+            setNotices(expandidos);
+            return combined;
+          });
+        }
+      );
+
+      return () => {
+        unsubscribeMonitoria();
+        unsubscribeNucleos();
+      };
     }, [expandirRecorrencias])
   );
 
@@ -164,12 +203,37 @@ export default function NoticeListScreen() {
   const dailyNotices = useMemo(() => notices.filter((n) => brToISO(n.data) === todayISO), [notices, todayISO]);
 
   const marked: { [date: string]: any } = {};
+
   for (const n of notices) {
     const iso = brToISO(n.data);
-    marked[iso] = { ...(marked[iso] || {}), marked: true, dotColor: "#2196F3" };
+
+    if (!marked[iso]) marked[iso] = { marked: true, dotColor: "" };
+
+    // Se já existe algum evento marcado
+    if (marked[iso].dotColor) {
+      // Se já tinha monitoria e agora é núcleo → verde
+      if (
+        (marked[iso].dotColor === "#2196F3" && n.tipo === "nucleo") ||
+        (marked[iso].dotColor === "#FFD700" && n.tipo === "monitoria")
+      ) {
+        marked[iso].dotColor = "#4CAF50"; // verde
+      }
+      // Se já era verde, mantém verde
+    } else {
+      // Primeiro evento do dia
+      marked[iso].dotColor = n.tipo === "monitoria" ? "#2196F3" : "#FFD700";
+    }
   }
-  if (selectedDate) marked[selectedDate] = { ...(marked[selectedDate] || {}), selected: true, selectedColor: "#2196F3" };
-  marked[todayISO] = { ...(marked[todayISO] || {}), customStyles: { container: { backgroundColor: "#4CAF50" }, text: { color: "white", fontWeight: "bold" } } };
+
+  // Marca a data selecionada
+  if (selectedDate) marked[selectedDate] = { ...(marked[selectedDate] || {}), selected: true, selectedColor: "#2196F3"};
+
+  // Marca hoje com fundo verde, se quiser
+  marked[todayISO] = {
+    ...(marked[todayISO] || {}),
+    customStyles: { container: { backgroundColor: "#355536" }, text: { color: "white", fontWeight: "bold" } },
+  };
+
 
   return (
     <View style={styles.mainContainer}>
@@ -187,7 +251,7 @@ export default function NoticeListScreen() {
 
         <ScrollView style={[styles.container, { flex: 1 }]}>
           {viewMode === "monthly" && filteredNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} monitor={n.createdAt} description={n.descricao} date={brToISO(n.data)} local={n.local} />
+            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
           ))}
 
           {viewMode === "weekly" && weeklyNotices.length === 0 && (
@@ -196,7 +260,7 @@ export default function NoticeListScreen() {
             </Text>
           )}
           {viewMode === "weekly" && weeklyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} monitor={n.frequencia} description={n.descricao} date={brToISO(n.data)} local={n.local} />
+            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
           ))}
 
           {viewMode === "daily" && dailyNotices.length === 0 && (
@@ -205,7 +269,7 @@ export default function NoticeListScreen() {
             </Text>
           )}
           {viewMode === "daily" && dailyNotices.length > 0 && dailyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} />
+            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
           ))}
         </ScrollView>
       </View>

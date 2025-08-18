@@ -8,21 +8,21 @@ import { criarAulaMonitoria } from "../../components/src/services/aulasMonitoria
 export default function CriarAvisoScreen() {
   const handleSalvar = async (dados: DadosAulaForm) => {
       try {
-          await criarAulaMonitoria(dados); // agora compatível 1:1
-          Toast.show({
-              type: "success",
-              text1: "Aviso criado!",
-              text2: "A aula foi salva com sucesso.",
-              position: "top",
-          });
+        await criarAulaMonitoria(dados); // agora compatível 1:1
+        Toast.show({
+            type: "success",
+            text1: "Aviso criado!",
+            text2: "A aula foi salva com sucesso.",
+            position: "top",
+        });
       } catch (e) {
-          console.error(e);
-          Toast.show({
-              type: "error",
-              text1: "Erro",
-              text2: "Não foi possível salvar a aula.",
-              position: "top",
-          });
+        console.error(e);
+        Toast.show({
+            type: "error",
+            text1: "Erro",
+            text2: "Não foi possível salvar a aula.",
+            position: "top",
+        });
       }
   };
 
