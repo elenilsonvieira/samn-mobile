@@ -1,4 +1,3 @@
-// src/services/aulasMonitoriaService.ts
 import {
   addDoc, collection, doc, getDocs, onSnapshot,
   orderBy, query, Timestamp, updateDoc, deleteDoc,
@@ -35,15 +34,13 @@ async function obterPerfilUsuario(uid: string) {
 }
 
 export async function criarAulaMonitoria(input: NovaAulaMonitoria) {
-  // Simulação de usuário logado (apenas para teste)
   const user = auth.currentUser;
   if (!user) throw new Error("Usuário não autenticado");
 
-  // Simulação do perfil do monitor
   const perfil = await obterPerfilUsuario(user.uid);
 
   await addDoc(collection(db, COL), {
-    materia: input.materia,  // <-- aqui mudou de disciplina para materia
+    materia: input.materia,
     dataHora: Timestamp.fromDate(input.dataHora),
     local: input.local,
     frequencia: input.frequencia,
@@ -59,7 +56,6 @@ export async function listarAulasMonitoria(): Promise<AulaMonitoria[]> {
   const q = query(collection(db, COL), orderBy("dataHora", "asc"));
   const snap = await getDocs(q);
   const aulas = snap.docs.map(mapDoc);
-  // atualiza cache
   await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(aulas));
   return aulas;
 }
@@ -69,7 +65,6 @@ export async function listarAulasMonitoriaDoCache(): Promise<AulaMonitoria[] | n
   if (!raw) return null;
   try {
     const arr = JSON.parse(raw) as AulaMonitoria[];
-    // reconstroi Date
     return arr.map(a => ({ ...a, dataHora: new Date(a.dataHora) }));
   } catch {
     return null;

@@ -37,7 +37,7 @@ type AvisoRegraPersistida = {
   local: string;
   email: string;
   matricula: string;
-  tipo: "monitoria" | "nucleo"; // NOVO: identifica o tipo
+  tipo: "monitoria" | "nucleo";
 };
 
 type StoredNotice = Omit<AvisoRegraPersistida, "untilISO" | "occurrences"> & {
@@ -103,7 +103,6 @@ export default function NoticeListScreen() {
     return avisosExpandidos;
   }, []);
 
-  // Listener em tempo real para monitoria e núcleos
   useFocusEffect(
     useCallback(() => {
       const unsubscribeMonitoria = onSnapshot(
@@ -128,7 +127,7 @@ export default function NoticeListScreen() {
           }) as AvisoRegraPersistida[];
 
           setRegras((prev) => {
-            const others = prev.filter((r) => r.tipo !== "monitoria"); // remove monitorias antigas
+            const others = prev.filter((r) => r.tipo !== "monitoria");
             const combined = [...others, ...monitorias];
             const expandidos = expandirRecorrencias(combined);
             setNotices(expandidos);
@@ -159,7 +158,7 @@ export default function NoticeListScreen() {
           }) as AvisoRegraPersistida[];
 
           setRegras((prev) => {
-            const others = prev.filter((r) => r.tipo !== "nucleo"); // remove núcleos antigos
+            const others = prev.filter((r) => r.tipo !== "nucleo");
             const combined = [...others, ...nucleos];
             const expandidos = expandirRecorrencias(combined);
             setNotices(expandidos);
@@ -209,26 +208,20 @@ export default function NoticeListScreen() {
 
     if (!marked[iso]) marked[iso] = { marked: true, dotColor: "" };
 
-    // Se já existe algum evento marcado
     if (marked[iso].dotColor) {
-      // Se já tinha monitoria e agora é núcleo → verde
       if (
         (marked[iso].dotColor === "#2196F3" && n.tipo === "nucleo") ||
         (marked[iso].dotColor === "#FFD700" && n.tipo === "monitoria")
       ) {
-        marked[iso].dotColor = "#4CAF50"; // verde
+        marked[iso].dotColor = "#4CAF50";
       }
-      // Se já era verde, mantém verde
     } else {
-      // Primeiro evento do dia
       marked[iso].dotColor = n.tipo === "monitoria" ? "#2196F3" : "#FFD700";
     }
   }
 
-  // Marca a data selecionada
   if (selectedDate) marked[selectedDate] = { ...(marked[selectedDate] || {}), selected: true, selectedColor: "#2196F3"};
 
-  // Marca hoje com fundo verde, se quiser
   marked[todayISO] = {
     ...(marked[todayISO] || {}),
     customStyles: { container: { backgroundColor: "#355536" }, text: { color: "white", fontWeight: "bold" } },

@@ -12,7 +12,6 @@ export default function RegisterScreen() {
   const [senha, setSenha] = useState('');
 
   const handleRegister = async () => {
-    // Remove espaços no início/fim e verifica se os campos estão vazios
     if (!matricula.trim() || !email.trim() || !senha.trim()) {
       Toast.show({
         type: 'error',
@@ -22,8 +21,36 @@ export default function RegisterScreen() {
       return;
     }
 
+    const matriculaRegex = /^[0-9]{12}$/;
+    if (!matriculaRegex.test(matricula)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Matrícula inválida!',
+        text2: 'A matrícula deve ter exatamente 12 dígitos numéricos.'
+      });
+      return;
+    }
+
+    const senhaRegex = /^[\w!@#$%^&*()\-_=+{};:,<.>]{8,12}$/;
+    if (!senhaRegex.test(senha)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Senha inválida!',
+        text2: 'A senha deve ter entre 8 e 12 caracteres e pode conter letras, números e caracteres especiais.'
+      });
+      return;
+    }
+
     try {
-      // Criar usuário no Firebase Auth
+      let tipo = "aluno"
+    if (matricula.startsWith("20")) {
+      tipo = "aluno";
+    } else if (matricula.startsWith("10")) {
+      tipo = "professor";
+    } else if (matricula.startsWith("0")) {
+      tipo = "coordenador";
+    }
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email.trim(),
@@ -31,16 +58,15 @@ export default function RegisterScreen() {
       );
       const user = userCredential.user;
 
-      // Salvar dados adicionais no Firestore
       await setDoc(doc(db, 'usuarios', user.uid), {
         matricula: matricula.trim(),
         email: email.trim(),
+        tipo,
         criadoEm: new Date().toISOString(),
       });
 
       Toast.show({ type: 'success', text1: 'Cadastro realizado com sucesso!' });
 
-      // Redireciona para tela de login
       router.push('/LoginScreen');
     } catch (error: any) {
       Toast.show({ type: 'error', text1: 'Erro no cadastro', text2: error.message });

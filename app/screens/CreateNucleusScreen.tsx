@@ -82,7 +82,6 @@ export default function CreateNucleusScreen() {
         return;
       }
 
-      // 🔑 Pega matrícula no perfil
       const perfil = await obterPerfilUsuario(user.uid);
 
       await addDoc(collection(db, "aulas_nucleo"), {

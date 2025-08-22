@@ -6,12 +6,12 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import Toast from 'react-native-toast-message';
 import { router } from 'expo-router';
 
+
 export default function LoginScreen() {
   const [matricula, setMatricula] = useState('');
   const [senha, setSenha] = useState('');
 
   const handleLogin = async () => {
-    // Remove espaços no início/fim e verifica se os campos estão vazios
     if (!matricula.trim() || !senha.trim()) {
       Toast.show({
         type: 'error',
@@ -22,7 +22,6 @@ export default function LoginScreen() {
     }
 
     try {
-      // 1️⃣ Buscar email no Firestore pelo número de matrícula
       const q = query(collection(db, "usuarios"), where("matricula", "==", matricula.trim()));
       const snapshot = await getDocs(q);
 
@@ -34,15 +33,35 @@ export default function LoginScreen() {
       const userData = snapshot.docs[0].data();
       const email = userData.email;
 
-      // 2️⃣ Fazer login no Firebase Auth usando o email recuperado
       const userCredential = await signInWithEmailAndPassword(auth, email, senha.trim());
       const user = userCredential.user;
 
       Toast.show({ type: 'success', text1: 'Login realizado com sucesso!' });
 
-      router.replace("/professor");
+    // 🚨 Decide a tela com base no tipo do usuário
+    switch (userData.tipo) {
+      case "aluno":
+        router.replace("/aluno");
+        break;
+      case "monitor":
+        router.replace("/monitor");
+        break;
+      case "professor":
+        router.replace("/professor");
+        break;
+      case "coordenador":
+        router.replace("/coordenador");
+        break;
+      default:
+        Toast.show({ type: 'error', text1: 'Erro', text2: 'Tipo de usuário inválido!' });
+    }
+
     } catch (error: any) {
-      Toast.show({ type: 'error', text1: 'Erro no login', text2: "A Senha informada não confere com a Matrícula informada" });
+      Toast.show({ 
+        type: 'error', 
+        text1: 'Erro no login', 
+        text2: "A senha informada não confere com a matrícula informada" 
+      });
     }
   };
 
@@ -76,20 +95,6 @@ export default function LoginScreen() {
       <Text style={styles.footer}>
         Entre em contato com o suporte em caso de problemas
       </Text>
-
-      {/* Botões de teste temporários */}
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/aluno")}>
-        <Text style={styles.buttonText}>Aluno</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/monitor")}>
-        <Text style={styles.buttonText}>Monitor</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/professor")}>
-        <Text style={styles.buttonText}>Professor</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/coordenador")}>
-        <Text style={styles.buttonText}>Coordenador</Text>
-      </TouchableOpacity>
     </View>
   );
 }
