@@ -40,6 +40,7 @@ export default function HomeScreen() {
             <Text style={styles.supportLink} onPress={handleSupport}>
                 Entre em contato com o suporte
             </Text>
+            
         </View>
     );
 }

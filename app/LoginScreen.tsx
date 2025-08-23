@@ -95,6 +95,24 @@ export default function LoginScreen() {
       <Text style={styles.footer}>
         Entre em contato com o suporte em caso de problemas
       </Text>
+      
+      {/* Botões para facilitar a visualizaçao de versões */}
+{/* 
+      <TouchableOpacity style={styles.button} onPress={() => router.replace("/aluno")}>
+        <Text style={styles.buttonText}>Aluno</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.button} onPress={() => router.replace("/monitor")}>
+        <Text style={styles.buttonText}>Monitor</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.button} onPress={() => router.replace("/professor")}>
+        <Text style={styles.buttonText}>Professor</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.button} onPress={() => router.replace("/coordenador")}>
+        <Text style={styles.buttonText}>Coordenador</Text>
+      </TouchableOpacity> */}
     </View>
   );
 }

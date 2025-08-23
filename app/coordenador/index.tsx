@@ -149,7 +149,7 @@ export default function NoticeListScreen() {
               data: dataHora ? formatBRDate(dataHora) : "",
               hora: dataHora ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(dataHora.getMinutes()).padStart(2, "0")}` : "",
               descricao: raw.descricao || "",
-              frequencia: raw.frequencia ||"Única",
+              frequencia: raw.frequencia || "Única",
               createdAt: raw.criadoEm?.toDate ? raw.criadoEm.toDate().toISOString() : raw.criadoEm,
               local: raw.local || "",
               matricula: raw.matricula || "",
@@ -226,7 +226,7 @@ export default function NoticeListScreen() {
   }
 
   // Marca a data selecionada
-  if (selectedDate) marked[selectedDate] = { ...(marked[selectedDate] || {}), selected: true, selectedColor: "#2196F3"};
+  if (selectedDate) marked[selectedDate] = { ...(marked[selectedDate] || {}), selected: true, selectedColor: "#2196F3" };
 
   // Marca hoje com fundo verde, se quiser
   marked[todayISO] = {
@@ -251,7 +251,7 @@ export default function NoticeListScreen() {
 
         <ScrollView style={[styles.container, { flex: 1 }]}>
           {viewMode === "monthly" && filteredNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
+            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email} />
           ))}
 
           {viewMode === "weekly" && weeklyNotices.length === 0 && (
@@ -260,7 +260,7 @@ export default function NoticeListScreen() {
             </Text>
           )}
           {viewMode === "weekly" && weeklyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
+            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email} />
           ))}
 
           {viewMode === "daily" && dailyNotices.length === 0 && (
@@ -269,7 +269,7 @@ export default function NoticeListScreen() {
             </Text>
           )}
           {viewMode === "daily" && dailyNotices.length > 0 && dailyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
+            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email} />
           ))}
         </ScrollView>
       </View>
@@ -277,6 +277,7 @@ export default function NoticeListScreen() {
       <TouchableOpacity
         style={styles.floatingButton}
         onPress={() => router.push('/screens/CreateNoticeScreen')}
+        onLongPress={() => router.push('/screens/CreateNoticeScreen')}
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>

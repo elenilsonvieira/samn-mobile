@@ -47,6 +47,22 @@ export default function DrawerLayout() {
                             <Ionicons name="person-circle-outline" size={36} color="#ffffff" />
                         </TouchableOpacity>),
                 }} />
+            <Drawer.Screen name="CreateNucleus"
+                options={{
+                    drawerLabel: 'Criar Núcleo',
+                    title: 'Agendamento do Núcleo',
+                    headerStyle: { backgroundColor: '#185545' },
+                    headerTintColor: '#ffffff',
+                    headerRight: () => (
+                        <TouchableOpacity
+                            onPress={() => {
+                                console.log('Conta pressionada');
+                            }}
+                            style={{ marginRight: 15 }}
+                        >
+                            <Ionicons name="person-circle-outline" size={36} color="#ffffff" />
+                        </TouchableOpacity>),
+                }} />
         </Drawer>
     );
 }
