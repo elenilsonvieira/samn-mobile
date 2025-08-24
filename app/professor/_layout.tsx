@@ -1,8 +1,11 @@
 import { Drawer } from 'expo-router/drawer';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function DrawerLayout() {
+    const router = useRouter();
+
     return (
         <Drawer
             screenOptions={{
@@ -15,7 +18,8 @@ export default function DrawerLayout() {
                 drawerInactiveTintColor: '#888',
             }}
         >
-            <Drawer.Screen name="index"
+            <Drawer.Screen
+                name="index"
                 options={{
                     drawerLabel: 'Home',
                     title: '',
@@ -24,13 +28,19 @@ export default function DrawerLayout() {
                     headerRight: () => (
                         <TouchableOpacity
                             onPress={() => {
-                                console.log('Conta pressionada');
+                                router.push('/profiles/profile');
                             }}
                             style={{ marginRight: 15 }}
                         >
-                            <Ionicons name="person-circle-outline" size={36} color="#ffffff" />
-                        </TouchableOpacity>),
-                }} />
+                            <Ionicons
+                                name="person-circle-outline"
+                                size={36}
+                                color="#ffffff"
+                            />
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
         </Drawer>
     );
 }
