@@ -1,9 +1,46 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { auth, db } from "../../components/src/fireBaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+
+interface Usuario {
+  nome: string;
+  email: string;
+  matricula: string;
+  tipo: string;
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+
+  useEffect(() => {
+    async function carregarUsuario() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        const ref = doc(db, "usuarios", user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          setUsuario(snap.data() as Usuario);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar perfil:", error);
+      }
+    }
+
+    carregarUsuario();
+  }, []);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.replace("/LoginScreen");
+  };
+
 
   return (
     <View style={styles.container}>
@@ -22,18 +59,18 @@ export default function ProfileScreen() {
           />
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>Fulano de Tall</Text>
-          <Text style={styles.email}>aluno@institucional.edu.br</Text>
-          <Text style={styles.matricula}>201231230</Text>
+          <Text style={styles.name}>{usuario?.nome ?? "Carregando..."}</Text>
+          <Text style={styles.email}>{usuario?.email ?? ""}</Text>
+          <Text style={styles.matricula}>{usuario?.matricula ?? ""}</Text>
         </View>
       </View>
 
       {/* Função */}
-      <Text style={styles.role}>Aluno</Text>
+      <Text style={styles.role}>{usuario?.tipo ?? ""}</Text>
 
       {/* Botão de sair */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="black" />
           <Text style={styles.logoutText}>Sair do aplicativo</Text>
         </TouchableOpacity>

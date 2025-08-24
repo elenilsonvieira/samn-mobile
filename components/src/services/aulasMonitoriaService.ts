@@ -3,8 +3,12 @@ import {
   orderBy, query, Timestamp, updateDoc, deleteDoc,
 } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { db, nowTs } from "../fireBaseConfig";
+import { db, nowTs} from "../fireBaseConfig";
 import {AulaMonitoria, NovaAulaMonitoria} from "../types/aulasMonitoria"
+
+import { auth } from "../fireBaseConfig";
+import { getDoc } from "firebase/firestore";
+
 
 const COL = "aulas_monitoria";
 const CACHE_KEY = "cache:aulas_monitoria";
@@ -23,14 +27,12 @@ const mapDoc = (d: any): AulaMonitoria => ({
 });
 
 
-import { auth } from "../fireBaseConfig";
-import { getDoc } from "firebase/firestore";
-
 async function obterPerfilUsuario(uid: string) {
   const ref = doc(db, "usuarios", uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) throw new Error("Perfil de Usuário não encontrado");
-  return snap.data() as { matricula: string };
+  return snap.data() as { matricula: string; nome:
+  string};
 }
 
 export async function criarAulaMonitoria(input: NovaAulaMonitoria) {
@@ -49,6 +51,7 @@ export async function criarAulaMonitoria(input: NovaAulaMonitoria) {
     Matricula: perfil.matricula,
     criadoEm: nowTs(),
     atualizadoEm: nowTs(),
+    nome: perfil.nome
   });
 }
 

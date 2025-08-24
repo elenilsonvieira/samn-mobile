@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { auth, db } from '../components/src/fireBaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc} from 'firebase/firestore';
 import Toast from 'react-native-toast-message';
 import { router } from 'expo-router';
 
@@ -36,7 +36,16 @@ export default function LoginScreen() {
       const userCredential = await signInWithEmailAndPassword(auth, email, senha.trim());
       const user = userCredential.user;
 
-      Toast.show({ type: 'success', text1: 'Login realizado com sucesso!' });
+      const userRef = doc(db, "usuarios", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      let nome = "";
+      if (userSnap.exists()) {
+        nome = userSnap.data().nome || "";
+      }
+
+
+      Toast.show({ type: 'success', text1: 'Login realizado com sucesso!', text2: nome ? `Seja bem-vindo, ${nome}` : "Seja bem-vindo!"});
 
     // 🚨 Decide a tela com base no tipo do usuário
     switch (userData.tipo) {
@@ -74,6 +83,7 @@ export default function LoginScreen() {
         style={styles.input}
         placeholder="000000000000"
         keyboardType="number-pad"
+        placeholderTextColor={"gray"}
         maxLength={12}
         value={matricula}
         onChangeText={setMatricula}
@@ -83,6 +93,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="••••••"
+        placeholderTextColor={"gray"}
         secureTextEntry
         value={senha}
         onChangeText={setSenha}
@@ -95,24 +106,6 @@ export default function LoginScreen() {
       <Text style={styles.footer}>
         Entre em contato com o suporte em caso de problemas
       </Text>
-      
-      {/* Botões para facilitar a visualizaçao de versões */}
-{/* 
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/aluno")}>
-        <Text style={styles.buttonText}>Aluno</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/monitor")}>
-        <Text style={styles.buttonText}>Monitor</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/professor")}>
-        <Text style={styles.buttonText}>Professor</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.button} onPress={() => router.replace("/coordenador")}>
-        <Text style={styles.buttonText}>Coordenador</Text>
-      </TouchableOpacity> */}
     </View>
   );
 }

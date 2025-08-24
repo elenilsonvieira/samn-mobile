@@ -37,7 +37,8 @@ type AvisoRegraPersistida = {
   local: string;
   email: string;
   matricula: string;
-  tipo: "monitoria" | "nucleo";
+  tipo: "Monitoria" | "Nucleo";
+  nome: string;
 };
 
 type StoredNotice = Omit<AvisoRegraPersistida, "untilISO" | "occurrences"> & {
@@ -122,12 +123,13 @@ export default function NoticeListScreen() {
               local: raw.local || "",
               matricula: raw.Matricula || "",
               email: raw.Uid || "",
-              tipo: "monitoria",
+              tipo: "Monitoria",
+              nome: raw.nome,
             };
           }) as AvisoRegraPersistida[];
 
           setRegras((prev) => {
-            const others = prev.filter((r) => r.tipo !== "monitoria");
+            const others = prev.filter((r) => r.tipo !== "Monitoria");
             const combined = [...others, ...monitorias];
             const expandidos = expandirRecorrencias(combined);
             setNotices(expandidos);
@@ -153,12 +155,13 @@ export default function NoticeListScreen() {
               local: raw.local || "",
               matricula: raw.matricula || "",
               email: raw.uid || "",
-              tipo: "nucleo",
+              tipo: "Nucleo",
+              nome: raw.nome,
             };
           }) as AvisoRegraPersistida[];
 
           setRegras((prev) => {
-            const others = prev.filter((r) => r.tipo !== "nucleo");
+            const others = prev.filter((r) => r.tipo !== "Nucleo");
             const combined = [...others, ...nucleos];
             const expandidos = expandirRecorrencias(combined);
             setNotices(expandidos);
@@ -210,13 +213,13 @@ export default function NoticeListScreen() {
 
     if (marked[iso].dotColor) {
       if (
-        (marked[iso].dotColor === "#2196F3" && n.tipo === "nucleo") ||
-        (marked[iso].dotColor === "#FFD700" && n.tipo === "monitoria")
+        (marked[iso].dotColor === "#2196F3" && n.tipo === "Monitoria") ||
+        (marked[iso].dotColor === "#FFD700" && n.tipo === "Nucleo")
       ) {
         marked[iso].dotColor = "#4CAF50";
       }
     } else {
-      marked[iso].dotColor = n.tipo === "monitoria" ? "#2196F3" : "#FFD700";
+      marked[iso].dotColor = n.tipo === "Monitoria" ? "#2196F3" : "#FFD700";
     }
   }
 
@@ -244,7 +247,7 @@ export default function NoticeListScreen() {
 
         <ScrollView style={[styles.container, { flex: 1 }]}>
           {viewMode === "monthly" && filteredNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
+            <NoticeCard key={n.id} title={n.materia} tipo={n.tipo} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} nome={n.nome} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
           ))}
 
           {viewMode === "weekly" && weeklyNotices.length === 0 && (
@@ -253,7 +256,7 @@ export default function NoticeListScreen() {
             </Text>
           )}
           {viewMode === "weekly" && weeklyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
+            <NoticeCard key={n.id} title={n.materia} tipo={n.tipo} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} nome={n.nome} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
           ))}
 
           {viewMode === "daily" && dailyNotices.length === 0 && (
@@ -262,7 +265,7 @@ export default function NoticeListScreen() {
             </Text>
           )}
           {viewMode === "daily" && dailyNotices.length > 0 && dailyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
+            <NoticeCard key={n.id} title={n.materia} tipo={n.tipo} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} nome={n.nome} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
           ))}
         </ScrollView>
       </View>

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import Toast from "react-native-toast-message";
 import { db, auth, nowTs } from "../../components/src/fireBaseConfig"; // importa Firebase
-import { collection, addDoc, doc, getDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc} from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { Frequencia } from "../../components/src/types/aulasMonitoria";
@@ -12,7 +12,7 @@ async function obterPerfilUsuario(uid: string) {
   const ref = doc(db, "usuarios", uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) throw new Error("Perfil de Usuário não encontrado");
-  return snap.data() as { matricula: string };
+  return snap.data() as { matricula: string ; nome: string};
 }
 
 
@@ -28,12 +28,12 @@ export default function CreateNucleusScreen() {
   const [frequencia, setFrequencia] = useState<Frequencia | "">("");
 
   const locais = [
-    "Sala 01", "Sala 02", "Sala 03", "Sala 04", "Sala 05",
-    "Sala 06", "Sala 07", "Sala 08", "Sala 09", "Sala 10",
+      "Sala 01", "Sala 02", "Sala 03", "Sala 04", "Sala 05",
+      "Sala 06", "Sala 07", "Sala 08", "Sala 09", "Sala 10",
   ];
 
   const arrayFrequencia: Frequencia[] = ["Única", "Semanal", "Mensal", "Anual"];
-
+  
   const canSave = frequencia !== "" && !!local && !loading;
 
   const handleCreate = async () => {
@@ -94,6 +94,7 @@ export default function CreateNucleusScreen() {
         local: local,
         materia: nucleusName.trim(),
         frequencia: frequencia,
+        nome: perfil.nome,
       });
 
       Toast.show({
@@ -122,12 +123,8 @@ export default function CreateNucleusScreen() {
 
 
   return (
-    <View style={styles.mainContainer}>
-      <ScrollView
-                contentContainerStyle={{ padding: 16 }}
-                keyboardShouldPersistTaps="handled"
-              >
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <Text style={styles.title}>Agendamento do Núcleo</Text>
 
       <TextInput
         style={styles.input}
@@ -138,70 +135,68 @@ export default function CreateNucleusScreen() {
       />
 
       <View style={styles.row}>
-        <Text style={styles.labelRow}>Data:</Text>
-        <Text style={styles.labelRow}>Hora:</Text>
+          <Text style={styles.labelData}>Data:</Text>
+          <Text style={styles.labelHora}>Hora:</Text>
       </View>
       <View style={styles.row}>
-        <TouchableOpacity style={styles.botaoData} onPress={() => setMostrarData(true)}>
-          <Text style={styles.botaoDataTexto}>{data.toLocaleDateString("pt-BR")}</Text>
-        </TouchableOpacity>
-        {mostrarData && (
-          <DateTimePicker
-            value={data}
-            mode="date"
-            minimumDate={new Date()}
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={(_, d) => {
-              setMostrarData(false);
-              if (d) setData(d);
-            }}
-          />
-        )}
+          <TouchableOpacity style={styles.botaoData} onPress={() => setMostrarData(true)}>
+              <Text style={styles.botaoDataTexto}>{data.toLocaleDateString("pt-BR")}</Text>
+          </TouchableOpacity>
+          {mostrarData && (
+              <DateTimePicker
+                  value={data}
+                  mode="date"
+                  minimumDate={new Date()}
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(_, d) => {
+                      setMostrarData(false);
+                      if (d) setData(d);
+                  }}
+              />
+          )}
 
-        <TouchableOpacity style={styles.botaoData} onPress={() => setMostrarHora(true)}>
-          <Text style={styles.botaoDataTexto}>{hora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Text>
-        </TouchableOpacity>
-        {mostrarHora && (
-          <DateTimePicker
-            value={hora}
-            mode="time"
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={(_, h) => {
-              setMostrarHora(false);
-              if (h) setHora(h);
-            }}
-          />
-        )}
+          <TouchableOpacity style={styles.botaoData} onPress={() => setMostrarHora(true)}>
+              <Text style={styles.botaoDataTexto}>{hora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Text>
+          </TouchableOpacity>
+          {mostrarHora && (
+              <DateTimePicker
+                  value={hora}
+                  mode="time"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(_, h) => {
+                      setMostrarHora(false);
+                      if (h) setHora(h);
+                  }}
+              />
+          )}
       </View>
-
+      <Text></Text>
       <View style={styles.row}>
-        <Text style={styles.label}>Local:</Text>
+        <Text style={styles.labelData}>Local:</Text>
       </View>
       <Picker
-        selectedValue={local}
-        onValueChange={setLocal}
-        style={styles.picker}
+          selectedValue={local}
+          onValueChange={setLocal}
+          style={styles.picker}
       >
-        <Picker.Item label="Selecione um local" value="" />
-        {locais.map((l, i) => (
-          <Picker.Item key={i} label={l} value={l} />
-        ))}
+          <Picker.Item label="Selecione um local" value="" />
+          {locais.map((l, i) => (
+              <Picker.Item key={i} label={l} value={l} />
+          ))}
       </Picker>
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Frequência:</Text>
-      </View>
+      <Text></Text>
+      <Text style={styles.label}>Frequência:</Text>
       <Picker
-        selectedValue={frequencia}
-        onValueChange={(v) => setFrequencia(v as Frequencia)}
-        style={styles.picker}
+          selectedValue={frequencia}
+          onValueChange={(v) => setFrequencia(v as Frequencia)}
+          style={styles.picker}
       >
-        <Picker.Item label="Selecione a frequência" value="" />
-        {arrayFrequencia.map((f, i) => (
-          <Picker.Item key={i} label={f} value={f} />
-        ))}
+          <Picker.Item label="Selecione a frequência" value="" />
+          {arrayFrequencia.map((f, i) => (
+              <Picker.Item key={i} label={f} value={f} />
+          ))}
       </Picker>
-
+      <Text></Text>
       <TextInput
         style={[styles.input, { height: 100, textAlignVertical: "top" }]}
         placeholder="Descrição do núcleo"
@@ -212,40 +207,23 @@ export default function CreateNucleusScreen() {
       />
 
       <TouchableOpacity style={styles.button} onPress={handleCreate}>
-        <Text style={styles.buttonText}>Criar</Text>
+        <Text style={styles.buttonText}>Criar </Text>
       </TouchableOpacity>
 
-      </View>
-      </ScrollView>
       <Toast />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  label: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  labelRow: {
-    fontWeight: "bold",
-    fontSize: 16,
-    flex: 1
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 12
-  },
-  mainContainer: {
-    backgroundColor: "#f9f9f9",
-    flex: 1,
-  },
+  label: { fontWeight: "bold", fontSize: 16 },
+  labelData: { fontWeight: "bold", fontSize: 16, flex: 1 },
+  labelHora: { fontWeight: "bold", fontSize: 16, flex: 1 },
+  row: { flexDirection: 'row', gap: 10 },
   container: {
-    backgroundColor: '#dedede',
-    padding: 16,
-    borderRadius: 20,
-    marginBottom: 20,
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 22,
@@ -270,23 +248,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-  botaoData: {
-    backgroundColor: "#ebebeb",
-    padding: 10,
-    alignItems: "center",
-    elevation: 5,
-    flex: 1,
-    marginBottom: 3,
-  },
-  botaoDataTexto: {
-    color: "black",
-    fontSize: 16
-  },
-  picker: {
-    backgroundColor: "#ebebeb",
-    color: "black",
-    textAlign: "center",
-    elevation: 5,
-    marginBottom: 15
-  },
+  botaoData: { backgroundColor: "#ebebeb", padding: 10,alignItems: "center", elevation: 5, flex: 1 },
+  botaoDataTexto: { color: "black", fontSize: 16 },
+  picker: { backgroundColor: "#ebebeb", color: "black", textAlign: "center", elevation: 5 },
 });

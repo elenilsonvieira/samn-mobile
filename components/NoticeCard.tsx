@@ -14,6 +14,8 @@ interface NoticeCardProps {
   email_do_responsavel: string;
   date: string;
   local: string;
+  nome: string;
+  tipo: string;
 }
 
 export default function NoticeCard({
@@ -23,18 +25,22 @@ export default function NoticeCard({
   email_do_responsavel,
   description,
   date,
-  local
+  local,
+  nome,
+  tipo
 }: NoticeCardProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>
         Aula de {title} {date ? `(${formatDateBR(date)})` : ''}
       </Text>
+      <Text style={styles.tipo}>{tipo}</Text>
       <View style={styles.row}>
         <Text style={styles.text}>Início: {start}</Text>
       </View>
       <Text style={styles.description}>Descrição: {description}</Text>
       <Text style={styles.local}>Local: {local}</Text>
+      <Text style={styles.nome}>Nome do Responsável: {nome}</Text>
       <Text style={styles.matricula_do_responsavel}>Matricula do Responsável: {matricula_do_responsavel}</Text>
       <Text style={styles.email_do_responsavel}>Email do Responsável: {email_do_responsavel}</Text>
     </View>
@@ -58,6 +64,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 6
   },
   text: {
     fontSize: 14,
@@ -78,5 +85,11 @@ const styles = StyleSheet.create({
   email_do_responsavel:{
     fontSize: 14,
     marginTop: 6,
-  }
+  },
+  nome:{    
+    fontSize: 14,
+    marginTop: 6,},
+  tipo:{    
+    fontSize: 14,
+    marginTop: 6,}
 });

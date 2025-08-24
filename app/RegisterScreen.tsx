@@ -10,9 +10,10 @@ export default function RegisterScreen() {
   const [matricula, setMatricula] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [nome, setNome] = useState('');
 
   const handleRegister = async () => {
-    if (!matricula.trim() || !email.trim() || !senha.trim()) {
+    if (!matricula.trim() || !email.trim() || !senha.trim() || !nome.trim()) {
       Toast.show({
         type: 'error',
         text1: 'Preencha todos os campos corretamente!',
@@ -41,6 +42,16 @@ export default function RegisterScreen() {
       return;
     }
 
+    const nomeRegex = /^[A-Za-zÀ-ÿ\s]{10,255}$/; 
+    if (!nomeRegex.test(nome)){
+      Toast.show({
+        type: 'error',
+        text1: 'Nome inválido!',
+        text2: 'A nome deve ter entre 10 a 255 caracteres e deve conter apenas letras.'
+      });
+      return;
+    }
+
     try {
       let tipo = "aluno"
     if (matricula.startsWith("20")) {
@@ -62,6 +73,7 @@ export default function RegisterScreen() {
         matricula: matricula.trim(),
         email: email.trim(),
         tipo,
+        nome,
         criadoEm: new Date().toISOString(),
       });
 
@@ -77,10 +89,22 @@ export default function RegisterScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Cadastro Acadêmico</Text>
 
+      <Text style={styles.label}>Nome Completo</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Seu Nome Completo"
+        placeholderTextColor={"gray"}
+        keyboardType="web-search"
+        maxLength={255}
+        value={nome}
+        onChangeText={setNome}
+      />
+
       <Text style={styles.label}>Matrícula</Text>
       <TextInput
         style={styles.input}
         placeholder="000000000000"
+        placeholderTextColor={"gray"}
         keyboardType="number-pad"
         maxLength={12}
         value={matricula}
@@ -91,6 +115,7 @@ export default function RegisterScreen() {
       <TextInput
         style={styles.input}
         placeholder="seunome@instituicao.edu.br"
+        placeholderTextColor={"gray"}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -101,6 +126,7 @@ export default function RegisterScreen() {
       <TextInput
         style={styles.input}
         placeholder="••••••"
+        placeholderTextColor={"gray"}
         secureTextEntry
         value={senha}
         onChangeText={setSenha}
