@@ -1,6 +1,7 @@
 import { Drawer } from 'expo-router/drawer';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function DrawerLayout() {
     return (
@@ -23,9 +24,7 @@ export default function DrawerLayout() {
                     headerTintColor: '#ffffff',
                     headerRight: () => (
                         <TouchableOpacity
-                            onPress={() => {
-                                console.log('Conta pressionada');
-                            }}
+                            onPress={() => router.push('/profiles/profile')}
                             style={{ marginRight: 15 }}
                         >
                             <Ionicons name="person-circle-outline" size={36} color="#ffffff" />

@@ -42,7 +42,7 @@ export default function DrawerLayout() {
                     headerTintColor: '#ffffff',
                     headerRight: () => (
                         <TouchableOpacity
-                            onPress={() => router.push('/profiles/alunoProfile')}
+                            onPress={() => router.push('/profiles/profile')}
                             style={{ marginRight: 15 }}
                         >
                             <Ionicons name="person-circle-outline" size={36} color="#ffffff" />
@@ -59,7 +59,7 @@ export default function DrawerLayout() {
                     headerTintColor: '#ffffff',
                     headerRight: () => (
                         <TouchableOpacity
-                            onPress={() => router.push('/profiles/alunoProfile')}
+                            onPress={() => router.push('/profiles/profile')}
                             style={{ marginRight: 15 }}
                         >
                             <Ionicons name="person-circle-outline" size={36} color="#ffffff" />
