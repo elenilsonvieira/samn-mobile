@@ -1,30 +1,34 @@
-import { Stack } from 'expo-router';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { StatusBar } from 'expo-status-bar';
-import Toast from 'react-native-toast-message';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Stack } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { StatusBar } from "expo-status-bar";
+import Toast from "react-native-toast-message";
+import { TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function RootLayout() {
-    const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme();
 
-    const [loaded] = useFonts({
-        SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    });
+  const [loaded] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  });
 
-    if (!loaded) return null;
+  if (!loaded) return null;
 
-    return (
-        <>
-            <Stack screenOptions={{headerShown: false}}>
-                <Stack.Screen name='index'/>
-            </Stack>
-            <Toast />
-            <StatusBar style="auto" />
-        </>
-    );
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+      </Stack>
+      <Toast />
+      <StatusBar style="auto" />
+    </>
+  );
 }
 
 /* import { Drawer } from 'expo-router/drawer';

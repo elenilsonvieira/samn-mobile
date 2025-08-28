@@ -1,22 +1,61 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Modal,
+} from "react-native";
 import { LocaleConfig } from "react-native-calendars";
 import NoticeCard from "@/components/NoticeCard";
 import ViewModeSelector from "@/components/ViewModeSelector";
 import CustomCalendar from "@/components/CustomCalendar";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../components/src/fireBaseConfig";
+import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { db, auth } from "../../components/src/fireBaseConfig";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import Toast from "react-native-toast-message";
 
 LocaleConfig.locales["pt-br"] = {
   monthNames: [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
   ],
-  monthNamesShort: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
-  dayNames: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"],
+  monthNamesShort: [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
+  ],
+  dayNames: [
+    "Domingo",
+    "Segunda-feira",
+    "Terça-feira",
+    "Quarta-feira",
+    "Quinta-feira",
+    "Sexta-feira",
+    "Sábado",
+  ],
   dayNamesShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
   today: "Hoje",
 };
@@ -37,8 +76,8 @@ type AvisoRegraPersistida = {
   local: string;
   email: string;
   matricula: string;
-  tipo: "Monitoria" | "Nucleo"; // NOVO: identifica o tipo
-  nome: string; 
+  tipo: "Monitoria" | "Nucleo";
+  nome: string;
 };
 
 type StoredNotice = Omit<AvisoRegraPersistida, "untilISO" | "occurrences"> & {
@@ -47,11 +86,17 @@ type StoredNotice = Omit<AvisoRegraPersistida, "untilISO" | "occurrences"> & {
 };
 
 export default function NoticeListScreen() {
-  const [viewMode, setViewMode] = useState<"monthly" | "weekly" | "daily">("monthly");
+  const [viewMode, setViewMode] = useState<"monthly" | "weekly" | "daily">(
+    "monthly"
+  );
   const [regras, setRegras] = useState<AvisoRegraPersistida[]>([]);
   const [notices, setNotices] = useState<StoredNotice[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState<StoredNotice | null>(
+    null
+  );
+  const currentUser = auth.currentUser;
   const todayISO = new Date().toISOString().slice(0, 10);
 
   const parseToDate = (dateStr: string): Date => {
@@ -72,65 +117,88 @@ export default function NoticeListScreen() {
     return `${d}/${m}/${y}`;
   };
 
-  const expandirRecorrencias = useCallback((regras: AvisoRegraPersistida[]): StoredNotice[] => {
-    const avisosExpandidos: StoredNotice[] = [];
-    regras.forEach((regra) => {
-      try {
-        const dataInicio = parseToDate(regra.data);
-        const frequencia = regra.frequencia;
-        const until = regra.untilISO ? new Date(regra.untilISO) : null;
-        const maxOcorrencias = regra.occurrences ?? 20;
+  const expandirRecorrencias = useCallback(
+    (regras: AvisoRegraPersistida[]): StoredNotice[] => {
+      const avisosExpandidos: StoredNotice[] = [];
+      regras.forEach((regra) => {
+        try {
+          const dataInicio = parseToDate(regra.data);
+          const frequencia = regra.frequencia;
+          const until = regra.untilISO ? new Date(regra.untilISO) : null;
+          const maxOcorrencias = regra.occurrences ?? 20;
 
-        if (frequencia === "Única") {
-          avisosExpandidos.push({ ...regra, data: formatBRDate(dataInicio), id: regra.id + "_0" });
-          return;
+          if (frequencia === "Única") {
+            avisosExpandidos.push({
+              ...regra,
+              data: formatBRDate(dataInicio),
+              id: regra.id + "_0",
+            });
+            return;
+          }
+
+          let ocorrenciasGeradas = 0;
+          let currentDate = new Date(dataInicio);
+
+          while (ocorrenciasGeradas < maxOcorrencias) {
+            if (until && currentDate > until) break;
+            avisosExpandidos.push({
+              ...regra,
+              data: formatBRDate(currentDate),
+              id: regra.id + "_" + ocorrenciasGeradas,
+            });
+            ocorrenciasGeradas++;
+            if (frequencia === "Semanal")
+              currentDate.setDate(currentDate.getDate() + 7);
+            else if (frequencia === "Mensal")
+              currentDate.setMonth(currentDate.getMonth() + 1);
+            else if (frequencia === "Anual")
+              currentDate.setFullYear(currentDate.getFullYear() + 1);
+          }
+        } catch (error) {
+          console.error("Erro ao expandir regra:", regra, error);
         }
+      });
+      return avisosExpandidos;
+    },
+    []
+  );
 
-        let ocorrenciasGeradas = 0;
-        let currentDate = new Date(dataInicio);
-
-        while (ocorrenciasGeradas < maxOcorrencias) {
-          if (until && currentDate > until) break;
-          avisosExpandidos.push({ ...regra, data: formatBRDate(currentDate), id: regra.id + "_" + ocorrenciasGeradas });
-          ocorrenciasGeradas++;
-          if (frequencia === "Semanal") currentDate.setDate(currentDate.getDate() + 7);
-          else if (frequencia === "Mensal") currentDate.setMonth(currentDate.getMonth() + 1);
-          else if (frequencia === "Anual") currentDate.setFullYear(currentDate.getFullYear() + 1);
-        }
-      } catch (error) {
-        console.error("Erro ao expandir regra:", regra, error);
-      }
-    });
-    return avisosExpandidos;
-  }, []);
-
-  // Listener em tempo real para monitoria e núcleos
   useFocusEffect(
     useCallback(() => {
       const unsubscribeMonitoria = onSnapshot(
         collection(db, "aulas_monitoria"),
         (snapshot) => {
-          const monitorias: AvisoRegraPersistida[] = snapshot.docs.map((doc) => {
-            const raw = doc.data();
-            const dataHora: Date | null = raw.dataHora?.toDate ? raw.dataHora.toDate() : null;
-            return {
-              id: doc.id,
-              materia: raw.materia,
-              data: dataHora ? formatBRDate(dataHora) : "",
-              hora: dataHora ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(dataHora.getMinutes()).padStart(2, "0")}` : "",
-              descricao: raw.descricao || "",
-              frequencia: raw.frequencia || "Única",
-              createdAt: raw.criadoEm?.toDate ? raw.criadoEm.toDate().toISOString() : raw.criadoEm,
-              local: raw.local || "",
-              matricula: raw.Matricula || "",
-              email: raw.Uid || "",
-              tipo: "Monitoria",
-              nome: raw.nome || "",
-            };
-          }) as AvisoRegraPersistida[];
+          const monitorias: AvisoRegraPersistida[] = snapshot.docs.map(
+            (doc) => {
+              const raw = doc.data();
+              const dataHora: Date | null = raw.dataHora?.toDate
+                ? raw.dataHora.toDate()
+                : null;
+              return {
+                id: doc.id,
+                materia: raw.materia,
+                data: dataHora ? formatBRDate(dataHora) : "",
+                hora: dataHora
+                  ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(
+                      dataHora.getMinutes()
+                    ).padStart(2, "0")}`
+                  : "",
+                descricao: raw.descricao || "",
+                frequencia: raw.frequencia || "Única",
+                createdAt: raw.criadoEm?.toDate
+                  ? raw.criadoEm.toDate().toISOString()
+                  : raw.criadoEm,
+                local: raw.local || "",
+                matricula: raw.Matricula || "",
+                email: raw.Uid || "",
+                tipo: "Monitoria",
+                nome: raw.nome || "",
+              };
+            }
+          ) as AvisoRegraPersistida[];
 
           setRegras((prev) => {
-            const others = prev.filter((r) => r.tipo !== "Monitoria"); // remove monitorias antigas
+            const others = prev.filter((r) => r.tipo !== "Monitoria");
             const combined = [...others, ...monitorias];
             const expandidos = expandirRecorrencias(combined);
             setNotices(expandidos);
@@ -144,15 +212,23 @@ export default function NoticeListScreen() {
         (snapshot) => {
           const nucleos: AvisoRegraPersistida[] = snapshot.docs.map((doc) => {
             const raw = doc.data();
-            const dataHora: Date | null = raw.dataHora?.toDate ? raw.dataHora.toDate() : null;
+            const dataHora: Date | null = raw.dataHora?.toDate
+              ? raw.dataHora.toDate()
+              : null;
             return {
               id: doc.id,
               materia: raw.materia,
               data: dataHora ? formatBRDate(dataHora) : "",
-              hora: dataHora ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(dataHora.getMinutes()).padStart(2, "0")}` : "",
+              hora: dataHora
+                ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(
+                    dataHora.getMinutes()
+                  ).padStart(2, "0")}`
+                : "",
               descricao: raw.descricao || "",
               frequencia: raw.frequencia || "Única",
-              createdAt: raw.criadoEm?.toDate ? raw.criadoEm.toDate().toISOString() : raw.criadoEm,
+              createdAt: raw.criadoEm?.toDate
+                ? raw.criadoEm.toDate().toISOString()
+                : raw.criadoEm,
               local: raw.local || "",
               matricula: raw.matricula || "",
               email: raw.uid || "",
@@ -162,7 +238,7 @@ export default function NoticeListScreen() {
           }) as AvisoRegraPersistida[];
 
           setRegras((prev) => {
-            const others = prev.filter((r) => r.tipo !== "Nucleo"); // remove núcleos antigos
+            const others = prev.filter((r) => r.tipo !== "Nucleo");
             const combined = [...others, ...nucleos];
             const expandidos = expandirRecorrencias(combined);
             setNotices(expandidos);
@@ -202,8 +278,14 @@ export default function NoticeListScreen() {
     return notices.filter((n) => brToISO(n.data) === selectedDate);
   }, [selectedDate, notices]);
 
-  const weeklyNotices = useMemo(() => notices.filter((n) => weekDates.includes(brToISO(n.data))), [notices, weekDates]);
-  const dailyNotices = useMemo(() => notices.filter((n) => brToISO(n.data) === todayISO), [notices, todayISO]);
+  const weeklyNotices = useMemo(
+    () => notices.filter((n) => weekDates.includes(brToISO(n.data))),
+    [notices, weekDates]
+  );
+  const dailyNotices = useMemo(
+    () => notices.filter((n) => brToISO(n.data) === todayISO),
+    [notices, todayISO]
+  );
 
   const marked: { [date: string]: any } = {};
 
@@ -212,37 +294,44 @@ export default function NoticeListScreen() {
 
     if (!marked[iso]) marked[iso] = { marked: true, dotColor: "" };
 
-    // Se já existe algum evento marcado
     if (marked[iso].dotColor) {
-      // Se já tinha monitoria e agora é núcleo → verde
       if (
-        (marked[iso].dotColor === "#2196F3" && n.tipo === "Monitoria") ||
-        (marked[iso].dotColor === "#FFD700" && n.tipo === "Nucleo")
+        (marked[iso].dotColor === "#2196F3" && n.tipo === "Nucleo") ||
+        (marked[iso].dotColor === "#FFD700" && n.tipo === "Monitoria")
       ) {
-        marked[iso].dotColor = "#4CAF50"; // verde
+        marked[iso].dotColor = "#4CAF50";
       }
-      // Se já era verde, mantém verde
     } else {
-      // Primeiro evento do dia
       marked[iso].dotColor = n.tipo === "Monitoria" ? "#2196F3" : "#FFD700";
     }
   }
 
-  // Marca a data selecionada
-  if (selectedDate) marked[selectedDate] = { ...(marked[selectedDate] || {}), selected: true, selectedColor: "#2196F3" };
+  if (selectedDate)
+    marked[selectedDate] = {
+      ...(marked[selectedDate] || {}),
+      selected: true,
+      selectedColor: "#2196F3",
+    };
 
-  // Marca hoje com fundo verde, se quiser
   marked[todayISO] = {
     ...(marked[todayISO] || {}),
-    customStyles: { container: { backgroundColor: "#355536" }, text: { color: "white", fontWeight: "bold" } },
+    customStyles: {
+      container: { backgroundColor: "#80df85" },
+      text: { color: "white", fontWeight: "bold" },
+    },
   };
-
 
   return (
     <View style={styles.mainContainer}>
       <View style={[styles.container, { flex: 1 }]}>
         <ViewModeSelector
-          selected={viewMode === "daily" ? "Hoje" : viewMode === "weekly" ? "Semanal" : "Mensal"}
+          selected={
+            viewMode === "daily"
+              ? "Hoje"
+              : viewMode === "weekly"
+              ? "Semanal"
+              : "Mensal"
+          }
           onChange={(mode) => {
             if (mode === "Hoje") setViewMode("daily");
             else if (mode === "Semanal") setViewMode("weekly");
@@ -250,40 +339,232 @@ export default function NoticeListScreen() {
           }}
         />
 
-        <CustomCalendar visible={viewMode === "monthly"} markedDates={marked} onDateChange={(date) => setSelectedDate(date)} />
+        <CustomCalendar
+          visible={viewMode === "monthly"}
+          markedDates={marked}
+          onDateChange={(date) => setSelectedDate(date)}
+        />
 
         <ScrollView style={[styles.container, { flex: 1 }]}>
-          {viewMode === "monthly" && filteredNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} tipo={n.tipo} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} nome={n.nome}matricula_do_responsavel={n.matricula} email_do_responsavel={n.email} />
-          ))}
+          {viewMode === "monthly" &&
+            filteredNotices.map((n) => (
+              <TouchableOpacity
+                key={n.id}
+                onPress={() => {
+                  setSelectedNotice(n);
+                  setModalVisible(true);
+                }}
+              >
+                <NoticeCard
+                  title={n.materia}
+                  tipo={n.tipo}
+                  start={n.hora}
+                  description={n.descricao}
+                  date={brToISO(n.data)}
+                  local={n.local}
+                  nome={n.nome}
+                  matricula_do_responsavel={n.matricula}
+                  email_do_responsavel={n.email}
+                />
+              </TouchableOpacity>
+            ))}
 
           {viewMode === "weekly" && weeklyNotices.length === 0 && (
-            <Text style={{ textAlign: "center", marginTop: 20, color: "black" }}>
+            <Text
+              style={{ textAlign: "center", marginTop: 20, color: "black" }}
+            >
               Nenhuma aula de Monitoria/Nucleo marcada para essa semana.
             </Text>
           )}
-          {viewMode === "weekly" && weeklyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} tipo={n.tipo} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} nome={n.nome} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
-          ))}
+          {viewMode === "weekly" &&
+            weeklyNotices.map((n) => (
+              <TouchableOpacity
+                key={n.id}
+                onPress={() => {
+                  setSelectedNotice(n);
+                  setModalVisible(true);
+                }}
+              >
+                <NoticeCard
+                  title={n.materia}
+                  tipo={n.tipo}
+                  start={n.hora}
+                  description={n.descricao}
+                  date={brToISO(n.data)}
+                  local={n.local}
+                  nome={n.nome}
+                  matricula_do_responsavel={n.matricula}
+                  email_do_responsavel={n.email}
+                />
+              </TouchableOpacity>
+            ))}
 
           {viewMode === "daily" && dailyNotices.length === 0 && (
-            <Text style={{ textAlign: "center", marginTop: 20, color: "black" }}>
+            <Text
+              style={{ textAlign: "center", marginTop: 20, color: "black" }}
+            >
               Nenhuma aula de Monitoria/Nucleo marcada para hoje.
             </Text>
           )}
-          {viewMode === "daily" && dailyNotices.length > 0 && dailyNotices.map((n) => (
-            <NoticeCard key={n.id} title={n.materia} tipo={n.tipo} start={n.hora} description={n.descricao} date={brToISO(n.data)} local={n.local} nome={n.nome} matricula_do_responsavel={n.matricula} email_do_responsavel={n.email}/>
-          ))}
+          {viewMode === "daily" &&
+            dailyNotices.length > 0 &&
+            dailyNotices.map((n) => (
+              <TouchableOpacity
+                key={n.id}
+                onPress={() => {
+                  setSelectedNotice(n);
+                  setModalVisible(true);
+                }}
+              >
+                <NoticeCard
+                  title={n.materia}
+                  tipo={n.tipo}
+                  start={n.hora}
+                  description={n.descricao}
+                  date={brToISO(n.data)}
+                  local={n.local}
+                  nome={n.nome}
+                  matricula_do_responsavel={n.matricula}
+                  email_do_responsavel={n.email}
+                />
+              </TouchableOpacity>
+            ))}
         </ScrollView>
       </View>
 
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => router.push('/screens/CreateNoticeScreen')}
-        onLongPress={() => router.push('/screens/CreateNoticeScreen')}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
       >
-        <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: "90%",
+              backgroundColor: "white",
+              borderRadius: 10,
+              padding: 20,
+            }}
+          >
+            {selectedNotice && (
+              <>
+                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                  Aula de {selectedNotice.materia}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  {selectedNotice.tipo}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Inicio: {selectedNotice.hora}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Descrição: {selectedNotice.descricao}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Data: {selectedNotice.data}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Local: {selectedNotice.local}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Matricula do Responsável: {selectedNotice.matricula}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Nome do Responsável: {selectedNotice.nome}
+                </Text>
+                <Text style={{ fontSize: 13, padding: 5 }}>
+                  Email do Responsável: {selectedNotice.email}
+                </Text>
+
+                {currentUser?.email === selectedNotice.email && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginTop: 20,
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: "red",
+                        padding: 10,
+                        borderRadius: 5,
+                      }}
+                      onPress={async () => {
+                        try {
+                          await deleteDoc(
+                            doc(
+                              db,
+                              selectedNotice.tipo === "Monitoria"
+                                ? "aulas_monitoria"
+                                : "aulas_nucleo",
+                              selectedNotice.id.split("_")[0]
+                            )
+                          );
+                          Toast.show({
+                            type: "success",
+                            text1: "Sucesso",
+                            text2: "Aviso deletado com sucesso!",
+                          });
+                          setModalVisible(false);
+                        } catch (err) {
+                          console.error(err);
+                          Toast.show({
+                            type: "error",
+                            text1: "Erro",
+                            text2: "Erro ao deletar o aviso!",
+                          });
+                        }
+                      }}
+                    >
+                      <Text style={{ color: "white" }}>Deletar</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: "blue",
+                        padding: 10,
+                        borderRadius: 5,
+                      }}
+                      onPress={() => {
+                        setModalVisible(false);
+                        if (selectedNotice.tipo == "Monitoria") {
+                          router.push({
+                            pathname: "/coordenador/CreateMonitoria",
+                            params: { id: selectedNotice.id.split("_")[0] },
+                          });
+                        } else {
+                          router.push({
+                            pathname: "/coordenador/CreateNucleus",
+                            params: { id: selectedNotice.id.split("_")[0] },
+                          });
+                        }
+                      }}
+                    >
+                      <Text style={{ color: "white" }}>Atualizar</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                <TouchableOpacity
+                  style={{ marginTop: 20, alignSelf: "center" , backgroundColor: "#377739", padding: 10, borderRadius: 5}}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={{ color: "white" }}>Fechar</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -291,6 +572,20 @@ export default function NoticeListScreen() {
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: "#f9f9f9" },
   container: { marginHorizontal: 10 },
-  title: { marginTop: 10, textAlign: "center", fontSize: 24, marginBottom: 20, color: "black" },
-  floatingButton: { position: "absolute", bottom: 40, right: 20, backgroundColor: "#185545", borderRadius: 50, padding: 15, elevation: 5 },
+  title: {
+    marginTop: 10,
+    textAlign: "center",
+    fontSize: 24,
+    marginBottom: 20,
+    color: "black",
+  },
+  floatingButton: {
+    position: "absolute",
+    bottom: 40,
+    right: 20,
+    backgroundColor: "#185545",
+    borderRadius: 50,
+    padding: 15,
+    elevation: 5,
+  },
 });

@@ -1,5 +1,5 @@
 import CreateNucleusScreen from "../screens/CreateNucleusScreen";
 
-export default function CoordenadorCreateNucleus() {
+export default function ProfessorCreateNucleus() {
   return <CreateNucleusScreen />;
 }

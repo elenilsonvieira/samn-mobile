@@ -1,39 +1,58 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { auth, db } from '../components/src/fireBaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { collection, query, where, getDocs, doc, getDoc} from 'firebase/firestore';
-import Toast from 'react-native-toast-message';
-import { router } from 'expo-router';
-
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { auth, db } from "../components/src/fireBaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import Toast from "react-native-toast-message";
+import { router } from "expo-router";
 
 export default function LoginScreen() {
-  const [matricula, setMatricula] = useState('');
-  const [senha, setSenha] = useState('');
+  const [matricula, setMatricula] = useState("");
+  const [senha, setSenha] = useState("");
 
   const handleLogin = async () => {
     if (!matricula.trim() || !senha.trim()) {
       Toast.show({
-        type: 'error',
-        text1: 'Preencha todos os campos corretamente!',
-        text2: 'Não é permitido apenas espaços em branco.'
+        type: "error",
+        text1: "Preencha todos os campos corretamente!",
+        text2: "Não é permitido apenas espaços em branco.",
       });
       return;
     }
 
     try {
-      const q = query(collection(db, "usuarios"), where("matricula", "==", matricula.trim()));
+      const q = query(
+        collection(db, "usuarios"),
+        where("matricula", "==", matricula.trim())
+      );
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        Toast.show({ type: 'error', text1: 'Matrícula não encontrada!' });
+        Toast.show({ type: "error", text1: "Matrícula não encontrada!" });
         return;
       }
 
       const userData = snapshot.docs[0].data();
       const email = userData.email;
 
-      const userCredential = await signInWithEmailAndPassword(auth, email, senha.trim());
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        senha.trim()
+      );
       const user = userCredential.user;
 
       const userRef = doc(db, "usuarios", user.uid);
@@ -44,32 +63,37 @@ export default function LoginScreen() {
         nome = userSnap.data().nome || "";
       }
 
+      Toast.show({
+        type: "success",
+        text1: "Login realizado com sucesso!",
+        text2: nome ? `Seja bem-vindo, ${nome}` : "Seja bem-vindo!",
+      });
 
-      Toast.show({ type: 'success', text1: 'Login realizado com sucesso!', text2: nome ? `Seja bem-vindo, ${nome}` : "Seja bem-vindo!"});
-
-    // 🚨 Decide a tela com base no tipo do usuário
-    switch (userData.tipo) {
-      case "aluno":
-        router.replace("/aluno");
-        break;
-      case "monitor":
-        router.replace("/monitor");
-        break;
-      case "professor":
-        router.replace("/professor");
-        break;
-      case "coordenador":
-        router.replace("/coordenador");
-        break;
-      default:
-        Toast.show({ type: 'error', text1: 'Erro', text2: 'Tipo de usuário inválido!' });
-    }
-
+      switch (userData.tipo) {
+        case "aluno":
+          router.replace("/aluno");
+          break;
+        case "monitor":
+          router.replace("/monitor");
+          break;
+        case "professor":
+          router.replace("/professor");
+          break;
+        case "coordenador":
+          router.replace("/coordenador");
+          break;
+        default:
+          Toast.show({
+            type: "error",
+            text1: "Erro",
+            text2: "Tipo de usuário inválido!",
+          });
+      }
     } catch (error: any) {
-      Toast.show({ 
-        type: 'error', 
-        text1: 'Erro no login', 
-        text2: "A senha informada não confere com a matrícula informada" 
+      Toast.show({
+        type: "error",
+        text1: "Erro no login",
+        text2: "A senha informada não confere com a matrícula informada",
       });
     }
   };
@@ -114,49 +138,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 32,
-    backgroundColor: '#F8F9FA',
-    justifyContent: 'center',
+    backgroundColor: "#F8F9FA",
+    justifyContent: "center",
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1B4332',
+    fontWeight: "700",
+    color: "#1B4332",
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   label: {
     fontSize: 12,
-    color: '#495057',
+    color: "#495057",
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#CED4DA',
+    borderColor: "#CED4DA",
     padding: 16,
     marginBottom: 16,
     borderRadius: 8,
     fontSize: 16,
-    color: '#212529',
+    color: "#212529",
   },
   button: {
-    backgroundColor: '#2D6A4F',
+    backgroundColor: "#2D6A4F",
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   footer: {
     fontSize: 12,
-    color: '#6C757D',
-    textAlign: 'center',
+    color: "#6C757D",
+    textAlign: "center",
     marginTop: 24,
   },
 });

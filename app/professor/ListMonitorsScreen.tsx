@@ -87,9 +87,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   titulo: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
-    margin: 16,
+    marginVertical: 10,
+    alignSelf: "center",
   },
   empty: {
     textAlign: "center",

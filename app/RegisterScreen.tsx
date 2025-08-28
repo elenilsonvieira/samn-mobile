@@ -1,23 +1,29 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { auth, db } from '../components/src/fireBaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import Toast from 'react-native-toast-message';
-import { router } from 'expo-router';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { auth, db } from "../components/src/fireBaseConfig";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import Toast from "react-native-toast-message";
+import { router } from "expo-router";
 
 export default function RegisterScreen() {
-  const [matricula, setMatricula] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [nome, setNome] = useState('');
+  const [matricula, setMatricula] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [nome, setNome] = useState("");
 
   const handleRegister = async () => {
     if (!matricula.trim() || !email.trim() || !senha.trim() || !nome.trim()) {
       Toast.show({
-        type: 'error',
-        text1: 'Preencha todos os campos corretamente!',
-        text2: 'Não é permitido apenas espaços em branco.'
+        type: "error",
+        text1: "Preencha todos os campos corretamente!",
+        text2: "Não é permitido apenas espaços em branco.",
       });
       return;
     }
@@ -25,9 +31,9 @@ export default function RegisterScreen() {
     const matriculaRegex = /^[0-9]{12}$/;
     if (!matriculaRegex.test(matricula)) {
       Toast.show({
-        type: 'error',
-        text1: 'Matrícula inválida!',
-        text2: 'A matrícula deve ter exatamente 12 dígitos numéricos.'
+        type: "error",
+        text1: "Matrícula inválida!",
+        text2: "A matrícula deve ter exatamente 12 dígitos numéricos.",
       });
       return;
     }
@@ -35,32 +41,34 @@ export default function RegisterScreen() {
     const senhaRegex = /^[\w!@#$%^&*()\-_=+{};:,<.>]{8,12}$/;
     if (!senhaRegex.test(senha)) {
       Toast.show({
-        type: 'error',
-        text1: 'Senha inválida!',
-        text2: 'A senha deve ter entre 8 e 12 caracteres e pode conter letras, números e caracteres especiais.'
+        type: "error",
+        text1: "Senha inválida!",
+        text2:
+          "A senha deve ter entre 8 e 12 caracteres e pode conter letras, números e caracteres especiais.",
       });
       return;
     }
 
-    const nomeRegex = /^[A-Za-zÀ-ÿ\s]{10,255}$/; 
-    if (!nomeRegex.test(nome)){
+    const nomeRegex = /^[A-Za-zÀ-ÿ\s]{10,255}$/;
+    if (!nomeRegex.test(nome)) {
       Toast.show({
-        type: 'error',
-        text1: 'Nome inválido!',
-        text2: 'A nome deve ter entre 10 a 255 caracteres e deve conter apenas letras.'
+        type: "error",
+        text1: "Nome inválido!",
+        text2:
+          "A nome deve ter entre 10 a 255 caracteres e deve conter apenas letras.",
       });
       return;
     }
 
     try {
-      let tipo = "aluno"
-    if (matricula.startsWith("20")) {
-      tipo = "aluno";
-    } else if (matricula.startsWith("10")) {
-      tipo = "professor";
-    } else if (matricula.startsWith("0")) {
-      tipo = "coordenador";
-    }
+      let tipo = "aluno";
+      if (matricula.startsWith("20")) {
+        tipo = "aluno";
+      } else if (matricula.startsWith("10")) {
+        tipo = "professor";
+      } else if (matricula.startsWith("0")) {
+        tipo = "coordenador";
+      }
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -69,7 +77,7 @@ export default function RegisterScreen() {
       );
       const user = userCredential.user;
 
-      await setDoc(doc(db, 'usuarios', user.uid), {
+      await setDoc(doc(db, "usuarios", user.uid), {
         matricula: matricula.trim(),
         email: email.trim(),
         tipo,
@@ -77,11 +85,15 @@ export default function RegisterScreen() {
         criadoEm: new Date().toISOString(),
       });
 
-      Toast.show({ type: 'success', text1: 'Cadastro realizado com sucesso!' });
+      Toast.show({ type: "success", text1: "Cadastro realizado com sucesso!" });
 
-      router.push('/LoginScreen');
+      router.push("/LoginScreen");
     } catch (error: any) {
-      Toast.show({ type: 'error', text1: 'Erro no cadastro', text2: error.message });
+      Toast.show({
+        type: "error",
+        text1: "Erro no cadastro",
+        text2: error.message,
+      });
     }
   };
 
@@ -147,49 +159,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 32,
-    backgroundColor: '#F8F9FA',
-    justifyContent: 'center',
+    backgroundColor: "#F8F9FA",
+    justifyContent: "center",
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1B4332',
+    fontWeight: "700",
+    color: "#1B4332",
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   label: {
     fontSize: 12,
-    color: '#495057',
+    color: "#495057",
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#CED4DA',
+    borderColor: "#CED4DA",
     padding: 16,
     marginBottom: 16,
     borderRadius: 8,
     fontSize: 16,
-    color: '#212529',
+    color: "#212529",
   },
   button: {
-    backgroundColor: '#2D6A4F',
+    backgroundColor: "#2D6A4F",
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   footer: {
     fontSize: 12,
-    color: '#6C757D',
-    textAlign: 'center',
+    color: "#6C757D",
+    textAlign: "center",
     marginTop: 24,
   },
 });

@@ -1,6 +1,6 @@
-import { View } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-import { useState } from 'react';
+import { View } from "react-native";
+import { Calendar } from "react-native-calendars";
+import { useState } from "react";
 
 interface CustomCalendarProps {
   onDateChange: (date: string) => void;
@@ -8,9 +8,13 @@ interface CustomCalendarProps {
   markedDates: any;
 }
 
-export default function CustomCalendar({ onDateChange, visible = true, markedDates }: CustomCalendarProps) {
+export default function CustomCalendar({
+  onDateChange,
+  visible = true,
+  markedDates,
+}: CustomCalendarProps) {
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
+    new Date().toISOString().split("T")[0]
   );
 
   if (!visible) return null;
@@ -32,7 +36,7 @@ export default function CustomCalendar({ onDateChange, visible = true, markedDat
           onDateChange(day.dateString);
         }}
         theme={{
-          todayTextColor: '#4A90E2',
+          todayTextColor: "#4A90E2",
         }}
       />
     </View>

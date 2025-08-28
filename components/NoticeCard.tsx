@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from "react-native";
 
 function formatDateBR(dateStr: string) {
   if (!dateStr) return "";
@@ -27,12 +27,12 @@ export default function NoticeCard({
   date,
   local,
   nome,
-  tipo
+  tipo,
 }: NoticeCardProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>
-        Aula de {title} {date ? `(${formatDateBR(date)})` : ''}
+        Aula de {title} {date ? `(${formatDateBR(date)})` : ""}
       </Text>
       <Text style={styles.tipo}>{tipo}</Text>
       <View style={styles.row}>
@@ -41,15 +41,19 @@ export default function NoticeCard({
       <Text style={styles.description}>Descrição: {description}</Text>
       <Text style={styles.local}>Local: {local}</Text>
       <Text style={styles.nome}>Nome do Responsável: {nome}</Text>
-      <Text style={styles.matricula_do_responsavel}>Matricula do Responsável: {matricula_do_responsavel}</Text>
-      <Text style={styles.email_do_responsavel}>Email do Responsável: {email_do_responsavel}</Text>
+      <Text style={styles.matricula_do_responsavel}>
+        Matricula do Responsável: {matricula_do_responsavel}
+      </Text>
+      <Text style={styles.email_do_responsavel}>
+        Email do Responsável: {email_do_responsavel}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 12,
     marginVertical: 8,
@@ -58,17 +62,17 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 6,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 6
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 6,
   },
   text: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   description: {
     fontSize: 14,
@@ -78,18 +82,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
   },
-  matricula_do_responsavel:{
+  matricula_do_responsavel: {
     fontSize: 14,
     marginTop: 6,
   },
-  email_do_responsavel:{
+  email_do_responsavel: {
     fontSize: 14,
     marginTop: 6,
   },
-  nome:{    
+  nome: {
     fontSize: 14,
-    marginTop: 6,},
-  tipo:{    
+    marginTop: 6,
+  },
+  tipo: {
     fontSize: 14,
-    marginTop: 6,}
+    marginTop: 6,
+  },
 });
