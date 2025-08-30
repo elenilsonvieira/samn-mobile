@@ -94,6 +94,7 @@ export default function NoticeListScreen() {
   const [notices, setNotices] = useState<StoredNotice[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [calendarVisible, setCalendarVisible] = useState(true);
   const [selectedNotice, setSelectedNotice] = useState<StoredNotice | null>(
     null
   );
@@ -181,8 +182,8 @@ export default function NoticeListScreen() {
                 data: dataHora ? formatBRDate(dataHora) : "",
                 hora: dataHora
                   ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(
-                      dataHora.getMinutes()
-                    ).padStart(2, "0")}`
+                    dataHora.getMinutes()
+                  ).padStart(2, "0")}`
                   : "",
                 descricao: raw.descricao || "",
                 frequencia: raw.frequencia || "Única",
@@ -222,8 +223,8 @@ export default function NoticeListScreen() {
               data: dataHora ? formatBRDate(dataHora) : "",
               hora: dataHora
                 ? `${String(dataHora.getHours()).padStart(2, "0")}:${String(
-                    dataHora.getMinutes()
-                  ).padStart(2, "0")}`
+                  dataHora.getMinutes()
+                ).padStart(2, "0")}`
                 : "",
               descricao: raw.descricao || "",
               frequencia: raw.frequencia || "Única",
@@ -330,8 +331,8 @@ export default function NoticeListScreen() {
             viewMode === "daily"
               ? "Hoje"
               : viewMode === "weekly"
-              ? "Semanal"
-              : "Mensal"
+                ? "Semanal"
+                : "Mensal"
           }
           onChange={(mode) => {
             if (mode === "Hoje") setViewMode("daily");
@@ -341,10 +342,23 @@ export default function NoticeListScreen() {
         />
 
         <CustomCalendar
-          visible={viewMode === "monthly"}
+          visible={viewMode === "monthly" && calendarVisible}
           markedDates={marked}
           onDateChange={(date) => setSelectedDate(date)}
         />
+
+        {viewMode === 'monthly' && (
+          <TouchableOpacity
+            onPress={() => setCalendarVisible((prev) => !prev)}
+            style={styles.toggleButton}
+          >
+            {calendarVisible ? (
+              <Ionicons name="close" size={24} color="red" />
+            ) : (
+              <Ionicons name="calendar" size={24} color="green" />
+            )}
+          </TouchableOpacity>)
+        }
 
         <ScrollView style={[styles.container, { flex: 1 }]}>
           {viewMode === "monthly" &&
@@ -555,7 +569,7 @@ export default function NoticeListScreen() {
                 )}
 
                 <TouchableOpacity
-                  style={{ marginTop: 20, alignSelf: "center" , backgroundColor: "#377739", padding: 10, borderRadius: 5}}
+                  style={{ marginTop: 20, alignSelf: "center", backgroundColor: "#377739", padding: 10, borderRadius: 5 }}
                   onPress={() => setModalVisible(false)}
                 >
                   <Text style={{ color: "white" }}>Fechar</Text>
@@ -593,4 +607,13 @@ const styles = StyleSheet.create({
     padding: 15,
     elevation: 5,
   },
+  toggleButton: {
+    width: 50,
+    height: 50,
+    marginVertical: 10,
+    padding: 10,
+    borderRadius: 25,
+    alignItems: "center",
+    alignSelf: "flex-end",
+  }
 });

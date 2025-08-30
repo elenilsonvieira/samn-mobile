@@ -130,6 +130,39 @@ export default function LoginScreen() {
       <Text style={styles.footer}>
         Entre em contato com o suporte em caso de problemas
       </Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          router.replace("/aluno");
+        }}
+      >
+        <Text>Aluno</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          router.replace("/monitor");
+        }}
+      >
+        <Text>monitor</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          router.replace("/professor");
+        }}
+      >
+        <Text>professor</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          router.replace("/coordenador");
+        }}
+      >
+        <Text>coordenador</Text>
+      </TouchableOpacity>
     </View>
   );
 }
