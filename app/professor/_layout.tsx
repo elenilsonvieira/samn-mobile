@@ -1,11 +1,9 @@
 import { Drawer } from "expo-router/drawer";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 
 export default function DrawerLayout() {
-  const router = useRouter();
-
   return (
     <Drawer
       screenOptions={{
@@ -27,9 +25,7 @@ export default function DrawerLayout() {
           headerTintColor: "#ffffff",
           headerRight: () => (
             <TouchableOpacity
-              onPress={() => {
-                router.push("/profiles/profile");
-              }}
+              onPress={() => router.push("/profiles/profile")}
               style={{ marginRight: 15 }}
             >
               <Ionicons
@@ -41,6 +37,7 @@ export default function DrawerLayout() {
           ),
         }}
       />
+
       <Drawer.Screen
         name="CreateNucleus"
         options={{
@@ -62,6 +59,7 @@ export default function DrawerLayout() {
           ),
         }}
       />
+
       <Drawer.Screen
         name="CreateMonitoria"
         options={{
@@ -83,11 +81,34 @@ export default function DrawerLayout() {
           ),
         }}
       />
+
       <Drawer.Screen
         name="ListMonitorsScreen"
         options={{
           drawerLabel: "Monitores",
           title: "Listagem de Monitores",
+          headerStyle: { backgroundColor: "#185545" },
+          headerTintColor: "#ffffff",
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push("/profiles/profile")}
+              style={{ marginRight: 15 }}
+            >
+              <Ionicons
+                name="person-circle-outline"
+                size={36}
+                color="#ffffff"
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="ListAlunos"
+        options={{
+          drawerLabel: "Alunos",
+          title: "Lista de Alunos",
           headerStyle: { backgroundColor: "#185545" },
           headerTintColor: "#ffffff",
           headerRight: () => (

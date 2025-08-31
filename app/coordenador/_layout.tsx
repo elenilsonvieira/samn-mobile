@@ -37,6 +37,7 @@ export default function DrawerLayout() {
           ),
         }}
       />
+
       <Drawer.Screen
         name="CreateNucleus"
         options={{
@@ -58,6 +59,7 @@ export default function DrawerLayout() {
           ),
         }}
       />
+
       <Drawer.Screen
         name="CreateMonitoria"
         options={{
@@ -79,11 +81,34 @@ export default function DrawerLayout() {
           ),
         }}
       />
+
       <Drawer.Screen
         name="ListMonitorsScreen"
         options={{
           drawerLabel: "Monitores",
           title: "Listagem de Monitores",
+          headerStyle: { backgroundColor: "#185545" },
+          headerTintColor: "#ffffff",
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push("/profiles/profile")}
+              style={{ marginRight: 15 }}
+            >
+              <Ionicons
+                name="person-circle-outline"
+                size={36}
+                color="#ffffff"
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="ListAlunos"
+        options={{
+          drawerLabel: "Alunos",
+          title: "Lista de Alunos",
           headerStyle: { backgroundColor: "#185545" },
           headerTintColor: "#ffffff",
           headerRight: () => (
