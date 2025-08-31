@@ -130,7 +130,7 @@ export default function LoginScreen() {
       <Text style={styles.footer}>
         Entre em contato com o suporte em caso de problemas
       </Text>
-
+      {/* 
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
@@ -163,6 +163,7 @@ export default function LoginScreen() {
       >
         <Text>coordenador</Text>
       </TouchableOpacity>
+      */}
     </View>
   );
 }
