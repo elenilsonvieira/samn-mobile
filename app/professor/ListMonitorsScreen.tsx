@@ -55,7 +55,7 @@ export default function MonitorsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.titulo}>Monitores</Text>
+      <Text style={styles.titulo}>Monitores </Text>
 
       <FlatList
         data={monitores}
