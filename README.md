@@ -10,17 +10,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-3. Create a FireBase database
+2. Create a FireBase database
    ```bash
    https://firebase.google.com/?hl=pt-br
    ```
-5. Create a file called ".env" and fill in the environment variables with your database data
+3. Create a file called ".env" and fill in the environment variables with your database data
    ```bash
    EXPO_PUBLIC_FIREBASE_API_KEY=
    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
@@ -28,6 +22,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
    EXPO_PUBLIC_FIREBASE_APP_ID=
+   ```
+4. Start the app
+
+   ```bash
+   npx expo start
    ```
 
 In the output, you'll find options to open the app in a
@@ -62,6 +61,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
 
 
 
