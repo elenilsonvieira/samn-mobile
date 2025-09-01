@@ -23,11 +23,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 5. Create a file called ".env" and fill in the environment variables with your database data
    ```bash
    EXPO_PUBLIC_FIREBASE_API_KEY=
-   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=agenda-monitoria.firebaseapp.com
-   EXPO_PUBLIC_FIREBASE_PROJECT_ID=agenda-monitoria
-   EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=agenda-monitoria.appspot.com
-   EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=807033164096
-   EXPO_PUBLIC_FIREBASE_APP_ID=1:807033164096:web:b677a6a9ebc64dc29e2aa5
+   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+   EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+   EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
+   EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+   EXPO_PUBLIC_FIREBASE_APP_ID=
    ```
 
 In the output, you'll find options to open the app in a
@@ -62,5 +62,6 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
 
 
