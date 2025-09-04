@@ -14,7 +14,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    https://firebase.google.com/?hl=pt-br
    ```
-3. Create a file called ".env" and fill in the environment variables with your database data
+3. Create a file called ".env" at the root of the project and fill in the environment variables with your database data
    ```bash
    EXPO_PUBLIC_FIREBASE_API_KEY=
    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
@@ -61,6 +61,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
 
 
 
